@@ -1,0 +1,192 @@
+# ============================================================
+# MonBot .monconfig
+# QQ 机器人配置文件 - 基于 NoneBot2 + NapCat
+# ============================================================
+
+# ==============================
+# [service] 服务标识
+# ==============================
+[service]
+NAME=MonBot
+VERSION=1.7.0
+ENVIRONMENT=prod                    # dev / prod
+
+# ==============================
+# [bot] 机器人基础配置
+# ==============================
+[bot]
+NAME=星野唯
+NICKNAMES=唯,小唯,napcat,NapCat
+DESCRIPTION=一个傲娇的日裔中国青梅竹马机器人
+COMMAND_PREFIX=/
+
+# ==============================
+# [nonebot] NoneBot2 框架配置
+# ==============================
+[nonebot]
+DRIVER=~aiohttp                     # NoneBot2 Driver
+HOST=127.0.0.1                      # 本地监听地址
+PORT=8080                           # 本地监听端口
+SUPERUSERS=123456789                # 超级用户QQ号（逗号分隔）
+
+# ==============================
+# [onebot] OneBot V11 适配器配置
+# ==============================
+[onebot]
+WS_URLS=ws://1.13.194.87:8050       # NapCat WebSocket 地址（云服务器）
+ACCESS_TOKEN=M79IAmt6cCrk3Tw1        # 访问令牌（与 NapCat 保持一致）
+
+# ==============================
+# [moncore] MonCore 后端配置
+# ==============================
+[moncore]
+IP=                                 # 服务器 IP（留空则 UDP 自动发现）
+HTTP_HOST=localhost                 # HTTP 访问地址（用于下载音频）
+DISCOVERY_PORT=6060                 # UDP 发现端口
+WS_PORT=8000                        # WebSocket 连接端口
+
+# ==============================
+# [napcat] NapCat 插件配置
+# ==============================
+[napcat]
+ENABLED=true                        # 启用 NapCat 插件
+AUTO_REPLY=true                     # 自动回复
+RESPONSE_STYLE=tsundere             # 回复风格（傲娇）
+
+# ==============================
+# [features] 功能开关
+# ==============================
+[features]
+ENABLE_GLOBAL_COMMANDS=true         # 启用全局命令（不需要@机器人）
+ENABLE_MENTION_REPLY=true           # 启用@机器人回复
+ENABLE_NAME_MENTION=true            # 启用名字提及回复
+VOICE_MODE_ENABLED=true             # 默认启用语音模式
+ENABLE_RATE_LIMIT=true              # 启用速率限制
+RATE_LIMIT_PER_MINUTE=60            # 每分钟最大消息数
+
+# ==============================
+# [plugins] 插件功能开关
+# ==============================
+[plugins]
+TEXT_ENABLED=true                   # 启用文本插件
+TEXT_KEYWORD_RESPONSES=true         # 启用关键词回复
+VOICE_ENABLED=false                 # 启用语音插件
+VOICE_TTS_ENABLED=false             # 启用 TTS（文字转语音）
+VOICE_STT_ENABLED=false             # 启用 STT（语音转文字）
+COMMAND_ENABLED=true                # 启用命令插件
+IMAGE_ENABLED=false                 # 启用图片插件
+IMAGE_RECOGNITION_ENABLED=false     # 启用图片识别
+IMAGE_GENERATION_ENABLED=false      # 启用图片生成
+
+# ==============================
+# [replies] 默认回复配置
+# ==============================
+[replies]
+DEFAULT=哼！本小姐收到了你的消息，但不知道如何处理...
+ERROR=哼！本小姐处理消息时出了点小问题...
+PRIVATE=哼！你私聊本小姐说：{message}\n本小姐收到了！
+
+# ==============================
+# [keywords] 关键词回复
+# ==============================
+[keywords]
+ping=哼！本小姐在线着呢！Pong！
+你好=你好！本小姐很高兴见到你～
+hi=Hi！本小姐很高兴见到你～
+napcat=哼！你提到本小姐的NapCat了！有什么需要帮助的吗？
+帮助=本小姐的可用命令：\n/napcat - 查看状态\n/help - 帮助\n/test - 测试
+状态=本小姐运行正常！NapCat消息处理功能已启用！
+测试=哼！测试功能正常！本小姐工作得很好！
+
+# ==============================
+# [permissions] 权限控制
+# ==============================
+[permissions]
+GROUP_DEFAULT_PERMIT=true           # 群聊默认许可（true=默认允许，false=仅白名单）
+PRIVATE_DEFAULT_PERMIT=true         # 私聊默认许可（true=默认允许，false=仅白名单）
+GROUP_ALLOW_LIST=                   # 群聊白名单（逗号分隔群号）
+GROUP_DENY_LIST=                    # 群聊黑名单（逗号分隔群号）
+PRIVATE_ALLOW_LIST=                 # 私聊白名单（逗号分隔QQ号）
+PRIVATE_DENY_LIST=                  # 私聊黑名单（逗号分隔QQ号）
+
+# ==============================
+# [storage] 数据存储配置
+# ==============================
+[storage]
+DATA_ROOT=data                      # 数据根目录
+NAPCAT_DATA_DIR=data/napcat         # NapCat 数据目录
+TEMP_DIR=data/temp                  # 临时文件目录
+AUDIO_DIR=data/temp/audio           # 音频文件目录
+BACKUP_ENABLED=true                 # 启用备份
+BACKUP_INTERVAL=24                  # 备份间隔（小时）
+
+# ==============================
+# [log] 日志配置
+# ==============================
+[log]
+LEVEL=INFO                          # 日志级别：DEBUG / INFO / WARNING / ERROR
+FILE=logs/monbot.log                # 日志文件路径
+TEXT_DIR=MonBot/data/Logs/Text      # 文本日志目录
+MAX_FILE_SIZE=10                    # 单个日志文件最大大小（MB）
+MAX_AGE=30                          # 日志文件保留天数
+BACKUP_COUNT=5                      # 保留的备份文件数量
+USE_COLOR=true                      # 启用彩色日志输出
+CONSOLE_ENABLED=true                # 启用控制台日志
+FILE_ENABLED=true                   # 启用文件日志
+
+# ==============================
+# [render] 渲染系统配置
+# ==============================
+[render]
+JSON_DIR=MonBot/data/Logs/Render    # 渲染JSON保存目录
+SVG_DIR=MonBot/data/Logs/Render/Svg # SVG图片保存目录
+DEFAULT_WIDTH=120                   # 默认渲染宽度
+SVG_ENABLED=true                    # 启用SVG导出
+
+# ==============================
+# [network] 网络配置
+# ==============================
+[network]
+HTTP_TIMEOUT=30                     # HTTP 请求超时时间（秒）
+WS_TIMEOUT=10                       # WebSocket 连接超时时间（秒）
+RECONNECT_INTERVAL=5                # 重连间隔时间（秒）
+MAX_RECONNECT_ATTEMPTS=10           # 最大重连次数
+MAX_CONNECTIONS=100                 # 最大并发连接数
+CONNECTION_TIMEOUT=30               # 连接超时时间（秒）
+REQUEST_TIMEOUT=10                  # 请求超时时间（秒）
+
+# ==============================
+# [security] 安全配置
+# ==============================
+[security]
+API_SECRET_KEY=your_secret_key_here # API 密钥
+ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000  # 允许的来源域名
+ENABLE_CORS=true                    # 启用CORS
+
+# ==============================
+# [debug] 开发调试配置
+# ==============================
+[debug]
+DEBUG=false                         # 调试模式
+DEV_MODE=false                      # 开发模式
+HOT_RELOAD=false                    # 热重载
+VERBOSE_ERRORS=false                # 详细错误信息
+ENABLE_PROFILING=false              # 启用性能监控
+SAVE_MESSAGE_LOG=true               # 保存详细的消息日志
+
+# ==============================
+# [limits] 限制配置
+# ==============================
+[limits]
+MAX_MESSAGE_LENGTH=1000             # 最大消息长度
+
+# ============================================================
+# 注意事项
+# ============================================================
+# 1. 修改配置后需要重启机器人
+# 2. 敏感信息（如 API 密钥、访问令牌）请妥善保管
+# 3. 生产环境建议设置 ENVIRONMENT=prod
+# 4. 开发时可以设置 DEBUG=true 获取更多日志
+# 5. ONEBOT_ACCESS_TOKEN 必须与 NapCat 配置一致
+# 6. 本配置文件遵循 Mon 项目环境变量规范 v1.0.0
+# ============================================================
