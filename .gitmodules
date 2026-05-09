@@ -1,0 +1,3 @@
+[submodule "BotCore"]
+	path = BotCore
+	url = https://github.com/jiang357357357/BotCore.git
