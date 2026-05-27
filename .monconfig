@@ -24,17 +24,17 @@ COMMAND_PREFIX=/
 # [nonebot] NoneBot2 框架配置
 # ==============================
 [nonebot]
-DRIVER=~aiohttp                     # NoneBot2 Driver
+DRIVER=~fastapi                     # NoneBot2 Driver（fastapi 支持热重载）
 HOST=127.0.0.1                      # 本地监听地址
 PORT=8080                           # 本地监听端口
-SUPERUSERS=123456789                # 超级用户QQ号（逗号分隔）
+SUPERUSERS=2740954024                 # 超级用户QQ号（逗号分隔）
 
 # ==============================
 # [onebot] OneBot V11 适配器配置
 # ==============================
 [onebot]
-WS_URLS=ws://1.13.194.87:8050       # NapCat WebSocket 地址（云服务器）
-ACCESS_TOKEN=M79IAmt6cCrk3Tw1        # 访问令牌（与 NapCat 保持一致）
+WS_URLS=ws://1.13.194.87:8050/?token=M79IAmt6cCrk3Tw1  # NapCat WebSocket 地址（token 拼在 URL）
+ACCESS_TOKEN=M79IAmt6cCrk3Tw1                           # 保留兼容（部分框架用 Header 传）
 
 # ==============================
 # [moncore] MonCore 后端配置
@@ -169,7 +169,7 @@ ENABLE_CORS=true                    # 启用CORS
 [debug]
 DEBUG=false                         # 调试模式
 DEV_MODE=false                      # 开发模式
-HOT_RELOAD=false                    # 热重载
+HOT_RELOAD=true                       # 热重载
 VERBOSE_ERRORS=false                # 详细错误信息
 ENABLE_PROFILING=false              # 启用性能监控
 SAVE_MESSAGE_LOG=true               # 保存详细的消息日志

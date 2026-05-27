@@ -23,24 +23,24 @@ Write-Host ""
 # 定义要检查的脚本列表
 $ScriptsToCheck = @(
     # MonCore 脚本
-    @{Path = "MonBack\MonCore\scripts\Venv\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonCore"},
-    @{Path = "MonBack\MonCore\scripts\Venv\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonCore"},
-    @{Path = "MonBack\MonCore\scripts\Venv\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonCore"},
-    @{Path = "MonBack\MonCore\scripts\Start\start_moncore.ps1"; Type = "SERVER_START"; Module = "MonCore"},
-    @{Path = "MonBack\MonCore\scripts\DB\migrate_db.py"; Type = "DB_MIGRATE"; Module = "MonCore"},
-    @{Path = "MonBack\MonCore\scripts\DB\init_admin.py"; Type = "DB_INIT"; Module = "MonCore"},
+    @{Path = "Backend\Server\scripts\Venv\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonCore"},
+    @{Path = "Backend\Server\scripts\Venv\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonCore"},
+    @{Path = "Backend\Server\scripts\Venv\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonCore"},
+    @{Path = "Backend\Server\scripts\Start\start_moncore.ps1"; Type = "SERVER_START"; Module = "MonCore"},
+    @{Path = "Backend\Server\scripts\DB\migrate_db.py"; Type = "DB_MIGRATE"; Module = "MonCore"},
+    @{Path = "Backend\Server\scripts\DB\init_admin.py"; Type = "DB_INIT"; Module = "MonCore"},
     
     # MonHub 脚本
-    @{Path = "MonBack\MonHub\Script\Venv\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonHub"},
-    @{Path = "MonBack\MonHub\Script\Venv\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonHub"},
-    @{Path = "MonBack\MonHub\Script\Venv\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonHub"},
-    @{Path = "MonBack\MonHub\Script\main\start_monhub.ps1"; Type = "SERVER_START"; Module = "MonHub"},
+    @{Path = "Backend\Hub\Script\Venv\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonHub"},
+    @{Path = "Backend\Hub\Script\Venv\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonHub"},
+    @{Path = "Backend\Hub\Script\Venv\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonHub"},
+    @{Path = "Backend\Hub\Script\main\start_monhub.ps1"; Type = "SERVER_START"; Module = "MonHub"},
     
     # MonOs 脚本
-    @{Path = "MonBack\MonOs\Script\Venv\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonOs"},
-    @{Path = "MonBack\MonOs\Script\Venv\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonOs"},
-    @{Path = "MonBack\MonOs\Script\Venv\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonOs"},
-    @{Path = "MonBack\MonOs\Script\main\start_monos.ps1"; Type = "SERVER_START"; Module = "MonOs"},
+    @{Path = "Backend\BaseOs\Script\Venv\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonOs"},
+    @{Path = "Backend\BaseOs\Script\Venv\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonOs"},
+    @{Path = "Backend\BaseOs\Script\Venv\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonOs"},
+    @{Path = "Backend\BaseOs\Script\main\start_monos.ps1"; Type = "SERVER_START"; Module = "MonOs"},
     
     # 通用脚本
     @{Path = "scripts\7zip\pack.ps1"; Type = "PACK"; Module = "Common"}

@@ -18,7 +18,7 @@ PROJECT_ROOT = Path(__file__).parent
 NAPCAT_LAUNCHER = PROJECT_ROOT / "napcat" / "launcher.bat"
 
 # MonBot 入口文件
-MONBOT_ENTRY = PROJECT_ROOT / "MonBot" / "bot.py"
+MONBOT_ENTRY = PROJECT_ROOT / "BotCore" / "bot.py"
 
 # 虚拟环境 Python 解释器
 VENV_PYTHON = PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"

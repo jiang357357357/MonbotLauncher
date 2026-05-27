@@ -171,18 +171,18 @@ if ($process) {
 ```env
 # MonCore
 MONCORE_PROCESS_NAME=MonCore-Django
-MONCORE_START=MonBack\MonCore\scripts\Start\start_moncore.ps1
-MONCORE_STOP=MonBack\MonCore\scripts\Start\stop_moncore.ps1
+MONCORE_START=Backend\Server\scripts\Start\start_moncore.ps1
+MONCORE_STOP=Backend\Server\scripts\Start\stop_moncore.ps1
 
 # MonHub
 MONHUB_PROCESS_NAME=MonHub-Service
-MONHUB_START=MonBack\MonHub\Script\main\start_monhub.ps1
-MONHUB_STOP=MonBack\MonHub\Script\main\stop_monhub.ps1
+MONHUB_START=Backend\Hub\Script\main\start_monhub.ps1
+MONHUB_STOP=Backend\Hub\Script\main\stop_monhub.ps1
 
 # MonOs
 MONOS_PROCESS_NAME=MonOs-Service
-MONOS_START=MonBack\MonOs\Script\main\start_monos.ps1
-MONOS_STOP=MonBack\MonOs\Script\main\stop_monos.ps1
+MONOS_START=Backend\BaseOs\Script\main\start_monos.ps1
+MONOS_STOP=Backend\BaseOs\Script\main\stop_monos.ps1
 ```
 
 ---
