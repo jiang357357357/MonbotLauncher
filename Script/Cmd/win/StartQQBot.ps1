@@ -13,6 +13,11 @@ $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+# 清理代理环境变量，避免 httpx/requests 等库因不兼容的代理格式崩溃
+$env:HTTP_PROXY = ""
+$env:HTTPS_PROXY = ""
+$env:ALL_PROXY = ""
+
 $ScriptRoot = $PSScriptRoot
 $ProjectRoot = (Get-Item "$ScriptRoot\..\..\..").FullName
 $VenvPython = "$ProjectRoot\.venv\Scripts\python.exe"
