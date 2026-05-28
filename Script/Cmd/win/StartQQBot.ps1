@@ -13,10 +13,8 @@ $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-# 清理代理环境变量，避免 httpx/requests 等库因不兼容的代理格式崩溃
-$env:HTTP_PROXY = ""
-$env:HTTPS_PROXY = ""
-$env:ALL_PROXY = ""
+# 移除代理环境变量，避免 httpx/requests 等库因不兼容的代理格式崩溃
+Remove-Item Env:HTTP_PROXY, Env:HTTPS_PROXY, Env:ALL_PROXY -ErrorAction SilentlyContinue
 
 $ScriptRoot = $PSScriptRoot
 $ProjectRoot = (Get-Item "$ScriptRoot\..\..\..").FullName
