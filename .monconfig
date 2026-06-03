@@ -180,6 +180,53 @@ SAVE_MESSAGE_LOG=true               # 保存详细的消息日志
 [limits]
 MAX_MESSAGE_LENGTH=1000             # 最大消息长度
 
+# ==============================
+# [process] 进程管理
+# ==============================
+[process]
+NAME=MonBot-Service
+PROCESS_TAG=monbot-main
+SCRIPT_PROCESS_WIN_START=Script/Process/start_process.py
+SCRIPT_PROCESS_WIN_STOP=Script/Process/stop_process.py
+SCRIPT_PROCESS_LINUX_START=Script/Process/linux/start_process.sh
+SCRIPT_PROCESS_LINUX_STOP=Script/Process/linux/stop_process.sh
+SCRIPT_PROCESS_LINUX_STATUS=Script/Process/linux/status_process.sh
+SCRIPT_PROCESS_LINUX_RESTART=Script/Process/linux/restart_process.sh
+SCRIPT_CMD_WIN_START=Script/Cmd/win/Start.ps1
+SCRIPT_CMD_LINUX_START=Script/Cmd/linux/start.sh
+SCRIPT_VENV_WIN_CHECK=Script/EnvTools/win/check_env.ps1
+SCRIPT_VENV_WIN_INSTALL=Script/EnvTools/win/install_env.ps1
+SCRIPT_VENV_WIN_REMOVE=Script/EnvTools/win/remove_env.ps1
+SCRIPT_VENV_LINUX_CHECK=Script/EnvTools/linux/check_env.sh
+SCRIPT_VENV_LINUX_INSTALL=Script/EnvTools/linux/install_env.sh
+SCRIPT_VENV_LINUX_REMOVE=Script/EnvTools/linux/remove_env.sh
+SCRIPT_RUNTIME_LINUX_NAPCAT_INSTALL=Script/Runtime/linux/install_napcat.sh
+SCRIPT_RUNTIME_LINUX_NAPCAT_CHECK=Script/Runtime/linux/check_napcat.sh
+SCRIPT_RUNTIME_LINUX_NAPCAT_INFO=Script/Runtime/linux/napcat_info.sh
+SCRIPT_RUNTIME_LINUX_NAPCAT_LOGOUT=Script/Runtime/linux/napcat_logout.sh
+SCRIPT_RUNTIME_WIN_NAPCAT_INSTALL=Script/Runtime/win/install_napcat.ps1
+SCRIPT_RUNTIME_WIN_NAPCAT_CHECK=Script/Runtime/win/check_napcat.ps1
+SCRIPT_RUNTIME_WIN_NAPCAT_INFO=Script/Runtime/win/napcat_info.ps1
+SCRIPT_NAPCAT_PROCESS_LINUX_START=Script/Process/linux/start_napcat_process.sh
+SCRIPT_NAPCAT_PROCESS_LINUX_STOP=Script/Process/linux/stop_napcat_process.sh
+SCRIPT_NAPCAT_PROCESS_LINUX_STATUS=Script/Process/linux/status_napcat_process.sh
+SCRIPT_NAPCAT_PROCESS_LINUX_RESTART=Script/Process/linux/restart_napcat_process.sh
+
+# ==============================
+# [napcat_process] NapCat 进程管理
+# ==============================
+[napcat_process]
+NAME=NapCat-Service
+MODE=auto                           # auto / shell / appimage / docker / custom
+HOME=napcat                         # 本机外置运行时目录，已被 Git 忽略
+INSTALL_BASE_DIR=napcat/Napcat      # 官方 Shell 安装器在 HOME 下生成的主目录
+EXECUTABLE=                         # 可选，手动指定 QQ/NapCat 启动入口
+APPIMAGE=                           # 可选，手动指定 NapCat AppImage
+DOCKER_CONTAINER=napcat
+QQ_ACCOUNT=                         # 可选，Shell 模式传给 -q
+EXTRA_ARGS=
+COMMAND=                            # custom 模式使用
+
 # ============================================================
 # 注意事项
 # ============================================================

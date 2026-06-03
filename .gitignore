@@ -16,5 +16,12 @@ wheels/
 
 # NapCat runtime (entire directory)
 napcat/
+NapCat/
+.runtime/
+runtime/
+External/NapCat/
 data/napcat/
 data/temp/
+*.db
+*.db-shm
+*.db-wal

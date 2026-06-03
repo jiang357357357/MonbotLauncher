@@ -66,6 +66,90 @@ uv run python MonQQBotCore/MonBot/bot.py
 python main_launcher.py
 ```
 
+### Linux PM2 启动
+
+Linux 环境先安装依赖，再交给 PM2 托管 QQBot 进程：
+
+```bash
+Script/EnvTools/linux/install_env.sh
+Script/Cmd/linux/start.sh
+```
+
+常用管理命令：
+
+```bash
+Script/Process/linux/status_process.sh
+Script/Process/linux/stop_process.sh
+Script/Process/linux/restart_process.sh
+pm2 logs MonBot-Service
+```
+
+当前 Linux PM2 脚本会先尝试启动 NapCat，再启动 `BotCore/bot.py`。NapCat 和 MonBot 是两个 PM2 应用，分别是 `NapCat-Service` 与 `MonBot-Service`。
+
+### NapCat 外置运行时
+
+NapCatQQ 当前许可证包含非商业使用限制；Gitee 分发仓库不要提交 NapCat 源码、二进制或解压后的运行时目录。仓库只提供外置安装脚本，实际部署时由使用者从 NapCat 官方安装器拉取到本机。默认本机部署目录是 `BotLauncher/napcat`，该目录已被 Git 忽略。
+
+参考：
+
+- NapCatQQ 许可证：https://github.com/NapNeko/NapCatQQ/blob/main/LICENSE
+- NapCat 官方安装器：https://github.com/NapNeko/NapCat-Installer
+
+Linux：
+
+```bash
+# 检查本机是否已有 NapCat
+Script/Runtime/linux/check_napcat.sh
+
+# 只下载官方安装器到 napcat/.installer，不执行安装
+Script/Runtime/linux/install_napcat.sh
+
+# 显式确认许可证后在 BotLauncher/napcat 中执行官方安装器
+Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n --proxy 0
+
+# 由 PM2 启动 NapCat
+Script/Process/linux/start_napcat_process.sh
+
+# 查看/停止/重启 NapCat
+Script/Process/linux/status_napcat_process.sh
+Script/Process/linux/stop_napcat_process.sh
+Script/Process/linux/restart_napcat_process.sh
+
+# 给 ConfigAppReact 读取 WebUI token 与登录二维码
+Script/Runtime/linux/napcat_info.sh --pretty
+Script/Runtime/linux/napcat_info.sh --no-image
+```
+
+Windows：
+
+```powershell
+# 检查本机是否已有 NapCat
+powershell -ExecutionPolicy Bypass -File Script/Runtime/win/check_napcat.ps1
+
+# 只下载官方安装器到 napcat/.installer，不执行安装
+powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1
+
+# 显式确认许可证后在 BotLauncher/napcat 中执行官方安装器
+powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1 -RunInstaller -AcceptNapCatLicense
+```
+
+如已获得 NapCatQQ 主作者对商业分发的明确授权，再单独调整分发脚本；默认流程保持外置运行时，不把 NapCat 本体推送到 Gitee。
+
+`napcat_info` 脚本会输出 JSON，字段包含：
+
+- `status` / `pm2Status` / `launchKind`
+- `webui.url` / `webui.token` / `webui.configPath`
+- `qrcode.path` / `qrcode.dataUrl` / `qrcode.modifiedAt`
+
+其中 `webui.token` 和 `qrcode.dataUrl` 属于敏感信息，只应在本机管理界面展示，不要写入远程日志。
+
+NapCat PM2 管理读取 `.monconfig` 的 `[napcat_process]`：
+
+- `MODE=auto`：自动探测 Shell、AppImage、Docker 或自定义命令。
+- `HOME=napcat`：NapCat 的本机部署根目录。
+- `INSTALL_BASE_DIR=napcat/Napcat`：官方 Shell 安装器生成的主安装目录。
+- `COMMAND=`：当 `MODE=custom` 时由 PM2 直接执行。
+
 ## 项目结构
 
 ```
