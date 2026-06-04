@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+unset PYTHONHOME PYTHONPATH PYTHONUSERBASE PYTHONEXECUTABLE
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 PROCESS_DIR="$PROJECT_ROOT/Script/Process/linux"
