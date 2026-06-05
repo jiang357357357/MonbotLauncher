@@ -15,19 +15,13 @@ echo "应用名称: $PM2_APP_NAME"
 echo
 
 status="$(pm2_app_status)"
-if [[ "$status" == "missing" ]]; then
-  echo "[!] PM2 中未找到 MonBot 应用"
+pm2_process_summary "$PM2_APP_NAME"
+echo
+if [[ "$status" != "missing" ]]; then
+  echo "日志命令:"
+  echo "  pm2 logs $PM2_APP_NAME"
   echo
-  echo "[PROCESS_NAME:$PM2_APP_NAME]"
-  echo "[SERVER_STATUS:NOT_RUNNING]"
-  exit 0
 fi
-
-pm2 status "$PM2_APP_NAME"
-echo
-echo "日志命令:"
-echo "  pm2 logs $PM2_APP_NAME"
-echo
 echo "[PROCESS_NAME:$PM2_APP_NAME]"
 if [[ "$status" == "online" ]]; then
   echo "[SERVER_STATUS:RUNNING]"

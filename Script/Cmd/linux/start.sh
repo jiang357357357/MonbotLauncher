@@ -58,9 +58,9 @@ echo "[2/2] 启动 MonBot..."
 
 echo
 echo "================================================"
-echo "PM2 进程列表"
+echo "PM2 进程摘要"
 echo "================================================"
-pm2 list
+bash "$PROJECT_ROOT/Script/Process/linux/status_all_process.sh"
 
 echo
 echo "管理命令:"

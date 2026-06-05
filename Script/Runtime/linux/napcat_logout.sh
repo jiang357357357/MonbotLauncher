@@ -118,13 +118,13 @@ echo
 echo "[1/2] 重启 NapCat，使其回到扫码登录入口..."
 status="$(pm2_named_status "$NAPCAT_PM2_NAME")"
 if [[ "$status" == "missing" ]]; then
-  pm2 start "$NAPCAT_ECOSYSTEM_FILE" --only "$NAPCAT_PM2_NAME"
+  run_pm2_quiet start "$NAPCAT_ECOSYSTEM_FILE" --only "$NAPCAT_PM2_NAME"
 else
-  pm2 restart "$NAPCAT_PM2_NAME" --update-env
+  run_pm2_quiet restart "$NAPCAT_PM2_NAME" --update-env
 fi
 
 echo
 echo "[2/2] PM2 状态"
-pm2 status "$NAPCAT_PM2_NAME"
+pm2_process_summary "$NAPCAT_PM2_NAME"
 echo
 echo "[NAPCAT_LOGOUT:RESTARTED_FOR_LOGIN]"

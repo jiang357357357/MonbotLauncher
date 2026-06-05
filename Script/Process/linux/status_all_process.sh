@@ -23,18 +23,7 @@ echo "NapCat 部署目录: $NAPCAT_HOME"
 echo "NapCat 运行模式: $napcat_kind"
 echo
 
-if [[ "$monbot_status" == "missing" ]]; then
-  echo "[!] PM2 中未找到 MonBot 应用"
-else
-  pm2 status "$PM2_APP_NAME"
-fi
-echo
-
-if [[ "$napcat_status" == "missing" ]]; then
-  echo "[!] PM2 中未找到 NapCat 应用"
-else
-  pm2 status "$NAPCAT_PM2_NAME"
-fi
+pm2_process_summary "$PM2_APP_NAME" "$NAPCAT_PM2_NAME"
 echo
 
 echo "日志命令:"

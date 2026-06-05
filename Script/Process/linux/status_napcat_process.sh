@@ -19,26 +19,18 @@ echo "运行模式: $kind"
 echo
 
 status="$(pm2_named_status "$NAPCAT_PM2_NAME")"
-if [[ "$status" == "missing" ]]; then
-  echo "[!] PM2 中未找到 NapCat 应用"
+pm2_process_summary "$NAPCAT_PM2_NAME"
+echo
+if [[ "$status" != "missing" ]]; then
+  echo "日志命令:"
+  echo "  pm2 logs $NAPCAT_PM2_NAME"
   echo
-  echo "[PROCESS_NAME:$NAPCAT_PM2_NAME]"
-  if [[ "$kind" == "missing" ]]; then
-    echo "[NAPCAT_STATUS:NOT_INSTALLED]"
-  else
-    echo "[NAPCAT_STATUS:NOT_RUNNING]"
-  fi
-  exit 0
 fi
-
-pm2 status "$NAPCAT_PM2_NAME"
-echo
-echo "日志命令:"
-echo "  pm2 logs $NAPCAT_PM2_NAME"
-echo
 echo "[PROCESS_NAME:$NAPCAT_PM2_NAME]"
 if [[ "$status" == "online" ]]; then
   echo "[NAPCAT_STATUS:RUNNING]"
+elif [[ "$kind" == "missing" ]]; then
+  echo "[NAPCAT_STATUS:NOT_INSTALLED]"
 else
   echo "[NAPCAT_STATUS:NOT_RUNNING]"
 fi

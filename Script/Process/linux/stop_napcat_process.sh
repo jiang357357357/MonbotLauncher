@@ -26,7 +26,9 @@ if [[ "$status" == "missing" ]]; then
   exit 0
 fi
 
-pm2 stop "$NAPCAT_PM2_NAME"
+run_pm2_quiet stop "$NAPCAT_PM2_NAME"
+echo
+pm2_process_summary "$NAPCAT_PM2_NAME"
 
 if [[ "$kind" == "docker" ]] && docker_container_exists "$NAPCAT_DOCKER_CONTAINER"; then
   docker stop "$NAPCAT_DOCKER_CONTAINER" >/dev/null 2>&1 || true

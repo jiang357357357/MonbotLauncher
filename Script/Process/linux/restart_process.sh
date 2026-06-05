@@ -16,11 +16,13 @@ echo
 
 status="$(pm2_app_status)"
 if [[ "$status" == "missing" ]]; then
-  pm2 start "$ECOSYSTEM_FILE" --only "$PM2_APP_NAME"
+  run_pm2_quiet start "$ECOSYSTEM_FILE" --only "$PM2_APP_NAME"
 else
-  pm2 restart "$PM2_APP_NAME" --update-env
+  run_pm2_quiet restart "$PM2_APP_NAME" --update-env
 fi
 
+echo
+pm2_process_summary "$PM2_APP_NAME"
 echo
 echo "[PROCESS_NAME:$PM2_APP_NAME]"
 echo "[SERVER_STATUS:RESTARTED]"

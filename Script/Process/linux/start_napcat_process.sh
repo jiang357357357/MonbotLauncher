@@ -44,7 +44,7 @@ status="$(pm2_named_status "$NAPCAT_PM2_NAME")"
 if [[ "$status" == "online" && "$FORCE" -eq 0 ]]; then
   echo "[!] NapCat 已由 PM2 管理并处于运行中"
   if [[ "${MON_PM2_PARENT:-0}" != "1" ]]; then
-    pm2 status "$NAPCAT_PM2_NAME"
+    pm2_process_summary "$NAPCAT_PM2_NAME"
     echo
   fi
   echo "[PROCESS_NAME:$NAPCAT_PM2_NAME]"
@@ -53,11 +53,13 @@ if [[ "$status" == "online" && "$FORCE" -eq 0 ]]; then
 fi
 
 if [[ "$status" == "missing" ]]; then
-  pm2 start "$NAPCAT_ECOSYSTEM_FILE" --only "$NAPCAT_PM2_NAME"
+  run_pm2_quiet start "$NAPCAT_ECOSYSTEM_FILE" --only "$NAPCAT_PM2_NAME"
 else
-  pm2 restart "$NAPCAT_PM2_NAME" --update-env
+  run_pm2_quiet restart "$NAPCAT_PM2_NAME" --update-env
 fi
 
+echo
+pm2_process_summary "$NAPCAT_PM2_NAME"
 echo
 echo "[PROCESS_NAME:$NAPCAT_PM2_NAME]"
 echo "[NAPCAT_STATUS:STARTED]"

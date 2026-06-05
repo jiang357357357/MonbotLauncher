@@ -68,6 +68,56 @@ pm2_named_status() {
   '
 }
 
+pm2_process_summary() {
+  local app_names_text
+  app_names_text="$(printf '%s\n' "$@")"
+  export PM2_APP_NAMES="$app_names_text"
+  pm2 jlist | node -e '
+    const fs = require("fs");
+    const names = (process.env.PM2_APP_NAMES || "").split(/\n/).map((item) => item.trim()).filter(Boolean);
+    const apps = JSON.parse(fs.readFileSync(0, "utf8") || "[]");
+    const rows = names.map((name) => {
+      const app = apps.find((item) => item.name === name);
+      if (!app) return { id: "-", name, status: "missing", pid: "-", cpu: "-", mem: "-" };
+      const env = app.pm2_env || {};
+      const monit = app.monit || {};
+      return {
+        id: String(app.pm_id ?? env.pm_id ?? "-"),
+        name,
+        status: env.status || "unknown",
+        pid: String(app.pid || env.pm_pid || "-"),
+        cpu: Number.isFinite(monit.cpu) ? `${monit.cpu}%` : "-",
+        mem: monit.memory ? `${(monit.memory / 1024 / 1024).toFixed(1)}MB` : "-",
+      };
+    });
+    const fields = [["id", "id"], ["name", "name"], ["status", "status"], ["pid", "pid"], ["cpu", "cpu"], ["mem", "mem"]];
+    const widths = {
+      field: Math.max("field".length, ...fields.map(([, label]) => label.length)),
+      value: Math.max("value".length, ...rows.flatMap((row) => fields.map(([key]) => String(row[key]).length))),
+    };
+    const border = (left, middle, right) =>
+      left + ["field", "value"].map((key) => "─".repeat(widths[key] + 2)).join(middle) + right;
+    const line = (field, value) =>
+      `│ ${String(field).padEnd(widths.field)} │ ${String(value).padEnd(widths.value)} │`;
+    console.log(border("┌", "┬", "┐"));
+    console.log(line("field", "value"));
+    console.log(border("├", "┼", "┤"));
+    rows.forEach((row, index) => {
+      if (index > 0) console.log(border("├", "┼", "┤"));
+      fields.forEach(([key, label]) => console.log(line(label, row[key])));
+    });
+    console.log(border("└", "┴", "┘"));
+  '
+}
+
+run_pm2_quiet() {
+  local output
+  if ! output="$(pm2 "$@" 2>&1)"; then
+    printf '%s\n' "$output"
+    return 1
+  fi
+}
+
 find_first_executable() {
   local candidate
   for candidate in "$@"; do

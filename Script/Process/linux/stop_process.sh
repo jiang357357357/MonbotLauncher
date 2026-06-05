@@ -23,7 +23,9 @@ if [[ "$status" == "missing" ]]; then
   exit 0
 fi
 
-pm2 stop "$PM2_APP_NAME"
+run_pm2_quiet stop "$PM2_APP_NAME"
+echo
+pm2_process_summary "$PM2_APP_NAME"
 echo
 echo "[PROCESS_NAME:$PM2_APP_NAME]"
 echo "[SERVER_STATUS:STOPPED]"
