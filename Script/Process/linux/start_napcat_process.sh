@@ -16,6 +16,7 @@ for arg in "$@"; do
 done
 
 ensure_pm2
+acquire_pm2_start_lock
 
 kind="$(detect_napcat_launch_kind)"
 

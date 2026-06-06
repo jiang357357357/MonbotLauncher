@@ -43,9 +43,41 @@ ensure_pm2() {
   return 1
 }
 
+pm2_cmd() {
+  pm2 "$@"
+}
+
+acquire_pm2_start_lock() {
+  if [[ "${MON_PM2_PARENT:-0}" == "1" ]]; then
+    return 0
+  fi
+
+  local lock_dir="${MON_PM2_START_LOCK_DIR:-/tmp/mon-pm2-start.lock.d}"
+  local pid_file="$lock_dir/pid"
+
+  while ! mkdir "$lock_dir" 2>/dev/null; do
+    local owner_pid=""
+    if [[ -f "$pid_file" ]]; then
+      owner_pid="$(cat "$pid_file" 2>/dev/null || true)"
+    fi
+
+    if [[ -z "$owner_pid" || ! "$owner_pid" =~ ^[0-9]+$ || ! -d "/proc/$owner_pid" ]]; then
+      rm -rf "$lock_dir"
+      continue
+    fi
+
+    echo "[i] 另一个 Mon PM2 启动流程正在运行，等待 PID $owner_pid..."
+    sleep 1
+  done
+
+  printf '%s\n' "$$" > "$pid_file"
+  MON_PM2_HELD_START_LOCK_DIR="$lock_dir"
+  trap 'rm -rf "$MON_PM2_HELD_START_LOCK_DIR"' EXIT
+}
+
 pm2_app_status() {
   export PM2_APP_NAME
-  pm2 jlist | node -e '
+  pm2_cmd jlist | node -e '
     const fs = require("fs");
     const name = process.env.PM2_APP_NAME;
     const input = fs.readFileSync(0, "utf8");
@@ -59,7 +91,7 @@ pm2_process_summary() {
   local app_names_text
   app_names_text="$(printf '%s\n' "$@")"
   export PM2_APP_NAMES="$app_names_text"
-  pm2 jlist | node -e '
+  pm2_cmd jlist | node -e '
     const fs = require("fs");
     const names = (process.env.PM2_APP_NAMES || "").split(/\n/).map((item) => item.trim()).filter(Boolean);
     const apps = JSON.parse(fs.readFileSync(0, "utf8") || "[]");
@@ -99,7 +131,7 @@ pm2_process_summary() {
 
 run_pm2_quiet() {
   local output
-  if ! output="$(pm2 "$@" 2>&1)"; then
+  if ! output="$(pm2_cmd "$@" 2>&1)"; then
     printf '%s\n' "$output"
     return 1
   fi

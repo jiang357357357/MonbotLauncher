@@ -6,6 +6,32 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 PROCESS_SCRIPT="$PROJECT_ROOT/Script/Process/linux/start_process.sh"
 NAPCAT_PROCESS_SCRIPT="$PROJECT_ROOT/Script/Process/linux/start_napcat_process.sh"
+MON_PM2_START_LOCK_DIR="${MON_PM2_START_LOCK_DIR:-/tmp/mon-pm2-start.lock.d}"
+
+acquire_start_lock() {
+  local lock_dir="$MON_PM2_START_LOCK_DIR"
+  local pid_file="$lock_dir/pid"
+
+  while ! mkdir "$lock_dir" 2>/dev/null; do
+    local owner_pid=""
+    if [[ -f "$pid_file" ]]; then
+      owner_pid="$(cat "$pid_file" 2>/dev/null || true)"
+    fi
+
+    if [[ -z "$owner_pid" || ! "$owner_pid" =~ ^[0-9]+$ || ! -d "/proc/$owner_pid" ]]; then
+      rm -rf "$lock_dir"
+      continue
+    fi
+
+    echo "[i] 另一个 Mon PM2 启动流程正在运行，等待 PID $owner_pid..."
+    sleep 1
+  done
+
+  printf '%s\n' "$$" > "$pid_file"
+  trap 'rm -rf "$MON_PM2_START_LOCK_DIR"' EXIT
+}
+
+acquire_start_lock
 
 FORCE_ARGS=()
 START_NAPCAT=1
