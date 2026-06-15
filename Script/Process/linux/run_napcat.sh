@@ -20,6 +20,7 @@ echo "================================================"
 echo "项目目录: $PROJECT_ROOT"
 echo "部署目录: $NAPCAT_HOME"
 echo "运行模式: $kind"
+echo "快速登录: ${NAPCAT_QQ_ACCOUNT:-未启用}"
 echo
 
 case "$kind" in

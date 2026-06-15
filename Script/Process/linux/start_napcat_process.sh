@@ -28,6 +28,7 @@ echo "应用名称: $NAPCAT_PM2_NAME"
 echo "部署目录: $NAPCAT_HOME"
 echo "运行模式: $kind"
 echo "配置文件: $NAPCAT_ECOSYSTEM_FILE"
+echo "快速登录: ${NAPCAT_QQ_ACCOUNT:-未启用}"
 echo
 
 if [[ "$kind" == "missing" ]]; then

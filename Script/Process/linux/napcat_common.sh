@@ -227,6 +227,20 @@ if [[ -z "$NAPCAT_APPIMAGE" ]]; then
   NAPCAT_APPIMAGE="$(find_first_appimage "$NAPCAT_HOME" || true)"
 fi
 
+detect_napcat_quick_login_account() {
+  local login_dir="$NAPCAT_HOME/.config/QQ/nt_qq/global/nt_data/Login"
+  [[ -d "$login_dir" ]] || return 0
+
+  find "$login_dir" -maxdepth 1 -type f -name '.[0-9]*' -printf '%f\n' 2>/dev/null \
+    | sed 's/^\\.//' \
+    | sort -n \
+    | tail -n 1
+}
+
+if [[ -z "$NAPCAT_QQ_ACCOUNT" ]]; then
+  NAPCAT_QQ_ACCOUNT="$(detect_napcat_quick_login_account || true)"
+fi
+
 detect_napcat_launch_kind() {
   case "$NAPCAT_MODE" in
     custom)
