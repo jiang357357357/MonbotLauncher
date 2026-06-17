@@ -12,7 +12,7 @@ INSTALLER_FILE="$INSTALLER_ROOT/install.sh"
 RUN_INSTALLER=1
 ACCEPT_LICENSE=1
 DEFAULT_INSTALLER_ARGS=1
-INSTALLER_ARGS=(--docker n --cli n --proxy 0)
+INSTALLER_ARGS=(--docker n --cli n)
 
 print_usage() {
   cat <<'EOF'
@@ -28,11 +28,12 @@ print_usage() {
 示例:
   bash Script/Runtime/linux/install_napcat.sh
   bash Script/Runtime/linux/install_napcat.sh --download-only
-  bash Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n --proxy 0
+  bash Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n
 
 说明:
   本脚本默认把 NapCat 部署到 BotLauncher/napcat，本目录已被 Git 忽略。
-  无参数执行时默认运行官方安装器，并使用 Shell/Rootless 模式：--docker n --cli n --proxy 0。
+  无参数执行时默认运行官方安装器，并使用 Shell/Rootless 模式：--docker n --cli n。
+  不固定 --proxy，让官方安装器按客户机网络自动选择 GitHub 下载代理。
   NapCatQQ 当前许可证包含非商业使用限制，分发前请确认你已获得所需授权。
 EOF
 }

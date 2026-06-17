@@ -108,7 +108,7 @@ Script/Runtime/linux/install_napcat.sh
 Script/Runtime/linux/install_napcat.sh --download-only
 
 # 显式确认许可证后在 BotLauncher/napcat 中执行官方安装器
-Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n --proxy 0
+Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n
 
 # 由 PM2 启动 NapCat
 Script/Process/linux/start_napcat_process.sh
