@@ -101,8 +101,11 @@ Linux：
 # 检查本机是否已有 NapCat
 Script/Runtime/linux/check_napcat.sh
 
-# 只下载官方安装器到 napcat/.installer，不执行安装
+# 默认执行官方安装器，安装到 BotLauncher/napcat
 Script/Runtime/linux/install_napcat.sh
+
+# 只下载官方安装器到 napcat/.installer，不执行安装
+Script/Runtime/linux/install_napcat.sh --download-only
 
 # 显式确认许可证后在 BotLauncher/napcat 中执行官方安装器
 Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n --proxy 0

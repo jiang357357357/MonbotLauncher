@@ -9,9 +9,10 @@ INSTALLER_ROOT="${MON_NAPCAT_INSTALLER_ROOT:-$NAPCAT_HOME/.installer}"
 INSTALLER_URL="${MON_NAPCAT_INSTALLER_URL:-https://nclatest.znin.net/NapNeko/NapCat-Installer/main/script/install.sh}"
 INSTALLER_FILE="$INSTALLER_ROOT/install.sh"
 
-RUN_INSTALLER=0
-ACCEPT_LICENSE=0
-INSTALLER_ARGS=()
+RUN_INSTALLER=1
+ACCEPT_LICENSE=1
+DEFAULT_INSTALLER_ARGS=1
+INSTALLER_ARGS=(--docker n --cli n --proxy 0)
 
 print_usage() {
   cat <<'EOF'
@@ -19,17 +20,19 @@ print_usage() {
   bash Script/Runtime/linux/install_napcat.sh [选项] [-- 安装器参数...]
 
 选项:
-  --download-only          只下载官方 NapCat 安装器，不执行安装器（默认）
-  --run-installer          下载后执行官方 NapCat 安装器
+  --download-only          只下载官方 NapCat 安装器，不执行安装器
+  --run-installer          下载后执行官方 NapCat 安装器（默认）
   --accept-napcat-license  确认已阅读并接受 NapCatQQ 当前许可证约束
   -h, --help               显示帮助
 
 示例:
   bash Script/Runtime/linux/install_napcat.sh
+  bash Script/Runtime/linux/install_napcat.sh --download-only
   bash Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n --proxy 0
 
 说明:
   本脚本默认把 NapCat 部署到 BotLauncher/napcat，本目录已被 Git 忽略。
+  无参数执行时默认运行官方安装器，并使用 Shell/Rootless 模式：--docker n --cli n --proxy 0。
   NapCatQQ 当前许可证包含非商业使用限制，分发前请确认你已获得所需授权。
 EOF
 }
@@ -72,10 +75,18 @@ while [[ $# -gt 0 ]]; do
       ;;
     --)
       shift
+      if [[ "$DEFAULT_INSTALLER_ARGS" -eq 1 ]]; then
+        DEFAULT_INSTALLER_ARGS=0
+        INSTALLER_ARGS=()
+      fi
       INSTALLER_ARGS+=("$@")
       break
       ;;
     *)
+      if [[ "$DEFAULT_INSTALLER_ARGS" -eq 1 ]]; then
+        DEFAULT_INSTALLER_ARGS=0
+        INSTALLER_ARGS=()
+      fi
       INSTALLER_ARGS+=("$1")
       shift
       ;;
@@ -120,6 +131,7 @@ fi
 
 echo
 echo "[*] 开始执行官方 NapCat 安装器..."
+echo "安装器参数: ${INSTALLER_ARGS[*]:-(无)}"
 (
   cd "$NAPCAT_HOME"
   HOME="$NAPCAT_HOME" bash "$INSTALLER_FILE" "${INSTALLER_ARGS[@]}"
