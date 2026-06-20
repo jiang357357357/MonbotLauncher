@@ -27,8 +27,8 @@ pm2_process_summary "$PM2_APP_NAME" "$NAPCAT_PM2_NAME"
 echo
 
 echo "日志命令:"
-echo "  pm2 logs $PM2_APP_NAME"
-echo "  pm2 logs $NAPCAT_PM2_NAME"
+echo "  bash Script/Process/linux/logs_process.sh"
+echo "  bash Script/Process/linux/logs_napcat_process.sh"
 echo
 echo "[PROCESS_NAME:$PM2_APP_NAME,$NAPCAT_PM2_NAME]"
 

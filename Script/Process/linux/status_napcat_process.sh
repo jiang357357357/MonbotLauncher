@@ -23,7 +23,7 @@ pm2_process_summary "$NAPCAT_PM2_NAME"
 echo
 if [[ "$status" != "missing" ]]; then
   echo "日志命令:"
-  echo "  pm2 logs $NAPCAT_PM2_NAME"
+  echo "  bash Script/Process/linux/logs_napcat_process.sh"
   echo
 fi
 echo "[PROCESS_NAME:$NAPCAT_PM2_NAME]"
