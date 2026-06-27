@@ -44,6 +44,20 @@ ensure_pm2() {
 }
 
 pm2_cmd() {
+  local lock_file="${MON_PM2_CLI_LOCK_FILE:-/tmp/mon-pm2-cli.lock}"
+  local lock_timeout="${MON_PM2_CLI_LOCK_TIMEOUT:-60}"
+
+  if command -v flock >/dev/null 2>&1; then
+    (
+      flock -w "$lock_timeout" 9 || {
+        echo "[x] 等待 PM2 全局锁超时: $lock_file" >&2
+        exit 1
+      }
+      pm2 "$@"
+    ) 9>"$lock_file"
+    return $?
+  fi
+
   pm2 "$@"
 }
 

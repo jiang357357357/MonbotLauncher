@@ -56,6 +56,40 @@ download_file() {
   return 1
 }
 
+prepare_sudo_for_installer() {
+  if [[ "$(id -u)" = "0" ]]; then
+    echo "[OK] 当前已是 root 用户，跳过 sudo 预授权"
+    return 0
+  fi
+
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "[x] 官方安装器需要安装系统依赖，但当前系统未找到 sudo"
+    echo "[NAPCAT_STATUS:SUDO_UNAVAILABLE]"
+    return 3
+  fi
+
+  if timeout 5s sudo -n true 2>/dev/null; then
+    echo "[OK] sudo 免密授权可用"
+    return 0
+  fi
+
+  if [[ "${MON_STDIN_SECRET_PROVIDED:-0}" == "1" ]]; then
+    echo "[*] 正在验证 sudo 密码..."
+    if timeout 20s sudo -S -p "" -v; then
+      echo "[OK] sudo 验证通过"
+      return 0
+    fi
+    echo "[x] sudo 密码验证失败"
+    echo "[NAPCAT_STATUS:SUDO_AUTH_FAILED]"
+    return 3
+  fi
+
+  echo "[x] 官方安装器会安装系统依赖，需要 sudo 密码"
+  echo "    请在 ConfigApp 的安装弹窗中输入 sudo 密码后重试。"
+  echo "[NAPCAT_STATUS:SUDO_REQUIRED]"
+  return 3
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --download-only)
@@ -133,8 +167,10 @@ fi
 echo
 echo "[*] 开始执行官方 NapCat 安装器..."
 echo "安装器参数: ${INSTALLER_ARGS[*]:-(无)}"
+prepare_sudo_for_installer
 (
   cd "$NAPCAT_HOME"
+  export DEBIAN_FRONTEND=noninteractive
   HOME="$NAPCAT_HOME" bash "$INSTALLER_FILE" "${INSTALLER_ARGS[@]}"
 )
 
