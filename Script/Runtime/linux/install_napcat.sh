@@ -136,8 +136,8 @@ echo "部署目录: $NAPCAT_HOME"
 echo "安装器目录: $INSTALLER_ROOT"
 echo "官方安装器: $INSTALLER_URL"
 echo
-echo "[!] NapCatQQ 本体不应进入 Mon 的 Gitee 分发仓库。"
-echo "[!] 如需商业或客户分发，请先取得 NapCatQQ 主作者明确授权。"
+echo "[!] NapCatQQ 本体不应进入 Mon 主仓库或客户端 dist 仓库。"
+echo "[!] 如需 Gitee 客户分发，请使用单独的私有运行时仓库，并确认授权边界。"
 echo
 
 mkdir -p "$NAPCAT_HOME" "$INSTALLER_ROOT"

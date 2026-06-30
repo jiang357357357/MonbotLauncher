@@ -88,12 +88,30 @@ pm2 logs MonBot-Service
 
 ### NapCat 外置运行时
 
-NapCatQQ 当前许可证包含非商业使用限制；Gitee 分发仓库不要提交 NapCat 源码、二进制或解压后的运行时目录。仓库只提供外置安装脚本，实际部署时由使用者从 NapCat 官方安装器拉取到本机。默认本机部署目录是 `BotLauncher/napcat`，该目录已被 Git 忽略。
+NapCatQQ 当前许可证包含非商业使用限制；`Mon` 主仓库、`BotLauncher` 源码仓库、`ConfigAppReact`/`Web` 客户端分发仓库都不要提交 NapCat 源码、二进制或解压后的运行时目录。需要面向客户提供 NapCat 离线安装能力时，在 Gitee 上单独建立私有运行时仓库，例如 `shopownerjiang/MonNapCatRuntime`，只存放 NapCat/QQ 离线运行时包、manifest、checksums 和恢复/安装脚本。
+
+默认本机部署目录是 `BotLauncher/napcat`，该目录已被 Git 忽略。在线安装仍可通过官方安装器拉取到本机；离线分发则从 Gitee 私有运行时仓库下载或拷贝离线包后安装。
 
 参考：
 
 - NapCatQQ 许可证：https://github.com/NapNeko/NapCatQQ/blob/main/LICENSE
 - NapCat 官方安装器：https://github.com/NapNeko/NapCat-Installer
+
+Gitee 私有运行时仓库建议结构：
+
+```text
+MonNapCatRuntime
+└── napcat/
+    └── linux-x64/
+        └── v4.18.7/
+            ├── manifest.json
+            ├── checksums.sha256
+            ├── NapCat-Linux-x64-offline.tar.gz.part001
+            ├── NapCat-Linux-x64-offline.tar.gz.part002
+            └── restore-napcat-offline.sh
+```
+
+`Mon` 分发清单只记录私有仓库中的 NapCat 版本、平台、manifest 地址和校验信息，不把 NapCat 本体写入 `Mon` 根仓库或现有子模块仓库。
 
 Linux：
 
@@ -121,6 +139,12 @@ Script/Process/linux/restart_napcat_process.sh
 # 给 ConfigAppReact 读取 WebUI token 与登录二维码
 Script/Runtime/linux/napcat_info.sh --pretty
 Script/Runtime/linux/napcat_info.sh --no-image
+
+# 在线机器构建 NapCat Linux 离线包，输出到 Mon/.release/napcat-offline
+Script/Runtime/linux/build_napcat_offline_bundle.sh --version latest --platform linux-x64
+
+# 从 Mon 根目录发布离线包到 Gitee 私有运行时仓库
+../Script/release/linux/publish_napcat_runtime_gitee.sh --create-repo --version latest --platform linux-x64
 ```
 
 Windows：
@@ -136,7 +160,7 @@ powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1
 powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1 -RunInstaller -AcceptNapCatLicense
 ```
 
-如已获得 NapCatQQ 主作者对商业分发的明确授权，再单独调整分发脚本；默认流程保持外置运行时，不把 NapCat 本体推送到 Gitee。
+如已获得 NapCatQQ 主作者对商业分发的明确授权，再单独维护 Gitee 私有运行时仓库中的离线包；默认流程保持外置运行时，不把 NapCat 本体推送到 `Mon` 主仓库或客户端 `dist` 仓库。
 
 `napcat_info` 脚本会输出 JSON，字段包含：
 
