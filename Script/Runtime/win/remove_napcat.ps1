@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "../../..")
 $NapCatHome = if ($env:MON_NAPCAT_HOME) { $env:MON_NAPCAT_HOME } else { Join-Path $ProjectRoot "napcat" }
-$Pm2Name = if ($env:MON_NAPCAT_PM2_NAME) { $env:MON_NAPCAT_PM2_NAME } else { "NapCat-Service" }
+$Pm2Name = if ($env:MON_NAPCAT_PM2_NAME) { $env:MON_NAPCAT_PM2_NAME } else { "napcat" }
 
 Write-Host "================================================"
 Write-Host "NapCat 外置运行时卸载工具 (Windows)"

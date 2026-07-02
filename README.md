@@ -81,10 +81,10 @@ Script/Cmd/linux/start.sh
 Script/Process/linux/status_process.sh
 Script/Process/linux/stop_process.sh
 Script/Process/linux/restart_process.sh
-pm2 logs MonBot-Service
+pm2 logs bot
 ```
 
-当前 Linux PM2 脚本会先尝试启动 NapCat，再启动 `BotCore/bot.py`。NapCat 和 MonBot 是两个 PM2 应用，分别是 `NapCat-Service` 与 `MonBot-Service`。
+当前 Linux PM2 脚本会先尝试启动 NapCat，再启动 `BotCore/bot.py`。NapCat 和 MonBot 是两个 PM2 应用，分别是 `napcat` 与 `bot`。
 
 ### NapCat 外置运行时
 

@@ -202,7 +202,7 @@ FILE=Data/Logs/Text/MonCore/MonCore.log
 PLAIN_FILE=Data/Logs/Text/MonCore/MonCore_plain.log
 
 [process]
-NAME=MonCore-Django
+NAME=core
 SCRIPT_START=scripts/Start/start_moncore.ps1
 SCRIPT_STOP=scripts/Start/stop_moncore.ps1
 
@@ -240,7 +240,7 @@ FILE=Logs/TextLogs/MonHub.log
 PLAIN_FILE=Logs/TextLogs/MonHub_plain.log
 
 [process]
-NAME=MonHub-Service
+NAME=hub
 SCRIPT_START=Script/main/start_monhub.ps1
 SCRIPT_STOP=Script/main/stop_monhub.ps1
 ```

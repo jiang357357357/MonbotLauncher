@@ -211,7 +211,7 @@ docker_container_exists() {
 }
 
 NAPCAT_PM2_NAME="${MON_NAPCAT_PM2_NAME:-$(read_monconfig_value napcat_process NAME)}"
-NAPCAT_PM2_NAME="${NAPCAT_PM2_NAME:-NapCat-Service}"
+NAPCAT_PM2_NAME="${NAPCAT_PM2_NAME:-napcat}"
 NAPCAT_MODE="${MON_NAPCAT_MODE:-$(read_monconfig_value napcat_process MODE)}"
 NAPCAT_MODE="${NAPCAT_MODE:-auto}"
 NAPCAT_HOME="$(resolve_project_path "${MON_NAPCAT_HOME:-$(read_monconfig_value napcat_process HOME)}" "napcat")"

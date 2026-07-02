@@ -1,7 +1,7 @@
 const path = require("path");
 
 const projectRoot = path.resolve(__dirname, "../../..");
-const appName = process.env.MON_PM2_NAME || "MonBot-Service";
+const appName = process.env.MON_PM2_NAME || "bot";
 const processTag = process.env.MON_PROCESS_TAG || "monbot-main";
 const serverPort = process.env.MON_SERVER_PORT || "8080";
 

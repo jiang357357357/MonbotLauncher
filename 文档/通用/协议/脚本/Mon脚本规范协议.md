@@ -31,20 +31,20 @@
 
 | 模块 | 进程标识符 |
 |------|-----------|
-| MonCore | `MonCore-Django` |
-| MonHub | `MonHub-Service` |
-| MonOs | `MonOs-Service` |
+| MonCore | `core` |
+| MonHub | `hub` |
+| MonOs | `os` |
 
 ### 进程标识符输出
 
 ```powershell
 # 启动时
-[PROCESS_NAME:MonCore-Django]
+[PROCESS_NAME:core]
 [PROCESS_PID:12345]           # 可选
 [SERVER_STATUS:STARTED]
 
 # 停止时
-[PROCESS_NAME:MonCore-Django]
+[PROCESS_NAME:core]
 [STOP_STATUS:SUCCESS]
 ```
 
@@ -90,7 +90,7 @@
 ```json
 {
   "exitCode": 0,
-  "processName": "MonCore-Django",
+  "processName": "core",
   "processPid": 12345,
   "status": "STARTED",
   "operation": "SERVER_STATUS",
@@ -136,7 +136,7 @@ param([switch]$NoWait)
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$ProcessName = "MonCore-Django"
+$ProcessName = "core"
 
 Write-Host "[PROCESS_NAME:$ProcessName]" -ForegroundColor Cyan
 Write-Host "启动服务..." -ForegroundColor Cyan
@@ -151,7 +151,7 @@ Write-Host "[SERVER_STATUS:STARTED]" -ForegroundColor Green
 ```powershell
 param([switch]$NoWait)
 
-$ProcessName = "MonCore-Django"
+$ProcessName = "core"
 $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
 
 if ($process) {
@@ -170,17 +170,17 @@ if ($process) {
 
 ```env
 # MonCore
-MONCORE_PROCESS_NAME=MonCore-Django
+MONCORE_PROCESS_NAME=core
 MONCORE_START=Backend\Server\scripts\Start\start_moncore.ps1
 MONCORE_STOP=Backend\Server\scripts\Start\stop_moncore.ps1
 
 # MonHub
-MONHUB_PROCESS_NAME=MonHub-Service
+MONHUB_PROCESS_NAME=hub
 MONHUB_START=Backend\Hub\Script\main\start_monhub.ps1
 MONHUB_STOP=Backend\Hub\Script\main\stop_monhub.ps1
 
 # MonOs
-MONOS_PROCESS_NAME=MonOs-Service
+MONOS_PROCESS_NAME=os
 MONOS_START=Backend\BaseOs\Script\main\start_monos.ps1
 MONOS_STOP=Backend\BaseOs\Script\main\stop_monos.ps1
 ```

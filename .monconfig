@@ -184,7 +184,7 @@ MAX_MESSAGE_LENGTH=1000             # 最大消息长度
 # [process] 进程管理
 # ==============================
 [process]
-NAME=MonBot-Service
+NAME=bot
 PROCESS_TAG=monbot-main
 SCRIPT_PROCESS_WIN_START=Script/Process/start_process.py
 SCRIPT_PROCESS_WIN_STOP=Script/Process/stop_process.py
@@ -218,7 +218,7 @@ SCRIPT_NAPCAT_PROCESS_LINUX_RESTART=Script/Process/linux/restart_napcat_process.
 # [napcat_process] NapCat 进程管理
 # ==============================
 [napcat_process]
-NAME=NapCat-Service
+NAME=napcat
 MODE=auto                           # auto / shell / appimage / docker / custom
 HOME=napcat                         # 本机外置运行时目录，已被 Git 忽略
 INSTALL_BASE_DIR=napcat/Napcat      # 官方 Shell 安装器在 HOME 下生成的主目录

@@ -27,7 +27,7 @@ read_monconfig_value() {
 }
 
 PM2_APP_NAME="${MON_PM2_NAME:-$(read_monconfig_value process NAME)}"
-PM2_APP_NAME="${PM2_APP_NAME:-MonBot-Service}"
+PM2_APP_NAME="${PM2_APP_NAME:-bot}"
 PROCESS_TAG="${MON_PROCESS_TAG:-$(read_monconfig_value process PROCESS_TAG)}"
 PROCESS_TAG="${PROCESS_TAG:-monbot-main}"
 SERVER_PORT="${MON_SERVER_PORT:-$(read_monconfig_value nonebot PORT)}"

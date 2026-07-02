@@ -1,7 +1,7 @@
 const path = require("path");
 
 const projectRoot = path.resolve(__dirname, "../../..");
-const appName = process.env.NAPCAT_PM2_NAME || "NapCat-Service";
+const appName = process.env.NAPCAT_PM2_NAME || "napcat";
 
 module.exports = {
   apps: [

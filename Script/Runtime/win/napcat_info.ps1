@@ -12,7 +12,7 @@ $InstallBaseDir = if ($env:MON_NAPCAT_INSTALL_BASE_DIR) { $env:MON_NAPCAT_INSTAL
 $PluginDir = Join-Path $InstallBaseDir "opt/QQ/resources/app/app_launcher/napcat"
 $WebuiConfig = Join-Path $PluginDir "config/webui.json"
 $QrcodePath = Join-Path $PluginDir "cache/qrcode.png"
-$Pm2Name = if ($env:MON_NAPCAT_PM2_NAME) { $env:MON_NAPCAT_PM2_NAME } else { "NapCat-Service" }
+$Pm2Name = if ($env:MON_NAPCAT_PM2_NAME) { $env:MON_NAPCAT_PM2_NAME } else { "napcat" }
 
 function Get-ModifiedAt {
     param([string]$Path)
