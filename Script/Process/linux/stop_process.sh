@@ -24,6 +24,7 @@ if [[ "$status" == "missing" ]]; then
 fi
 
 run_pm2_quiet stop "$PM2_APP_NAME"
+append_process_log "MonBot PM2 进程停止 - $PM2_APP_NAME"
 echo
 pm2_process_summary "$PM2_APP_NAME"
 echo

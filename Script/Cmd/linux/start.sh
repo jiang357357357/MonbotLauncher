@@ -8,6 +8,9 @@ PROCESS_SCRIPT="$PROJECT_ROOT/Script/Process/linux/start_process.sh"
 NAPCAT_PROCESS_SCRIPT="$PROJECT_ROOT/Script/Process/linux/start_napcat_process.sh"
 MON_PM2_START_LOCK_DIR="${MON_PM2_START_LOCK_DIR:-/tmp/mon-pm2-start.lock.d}"
 
+# shellcheck source=../../Process/linux/log_paths.sh
+source "$PROJECT_ROOT/Script/Process/linux/log_paths.sh"
+
 acquire_start_lock() {
   local lock_dir="$MON_PM2_START_LOCK_DIR"
   local pid_file="$lock_dir/pid"
@@ -51,6 +54,10 @@ echo "================================================"
 echo "MonBot PM2 启动工具 (Linux)"
 echo "================================================"
 echo "项目目录: $PROJECT_ROOT"
+LOG_START_DIR="$(ensure_log_start_dir)"
+export MON_LOG_START_DIR="$LOG_START_DIR"
+echo "日志根目录: $MON_LOG_ROOT"
+echo "本次启动目录: $MON_LOG_START_DIR"
 echo
 
 NAPCAT_STATUS=0

@@ -4,15 +4,38 @@ MonBot 进程停止工具
 """
 
 import argparse
-import subprocess
 import sys
 import time
 from pathlib import Path
 
+from log_paths import latest_start_dir, process_log_file
+
+
+def configure_stdio() -> None:
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if stream is None or not hasattr(stream, "reconfigure"):
+            continue
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
+configure_stdio()
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-LOG_DIR = PROJECT_ROOT / "logs"
-LOG_FILE = LOG_DIR / "monbot_process.log"
+
+
+def append_process_log(message: str) -> None:
+    start_dir = latest_start_dir(PROJECT_ROOT)
+    if start_dir is None:
+        return
+    log_file = process_log_file(start_dir)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    with log_file.open("a", encoding="utf-8") as fh:
+        fh.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {message}\n")
 
 
 def _find_python_processes(name_filter: str = ""):
@@ -94,6 +117,9 @@ def main() -> int:
     print()
     if monbot_procs or napcat_procs:
         print("[✓] 进程已停止")
+        append_process_log(
+            f"MonBot 进程停止 - MonBot: {len(monbot_procs)}, NapCat: {len(napcat_procs)}"
+        )
     else:
         print("[!] 无进程需要停止")
     return 0

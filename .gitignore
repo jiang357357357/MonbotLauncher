@@ -22,6 +22,9 @@ runtime/
 External/NapCat/
 data/napcat/
 data/temp/
+Logs/
+logs/
+BotCore/data/Logs/
 *.db
 *.db-shm
 *.db-wal

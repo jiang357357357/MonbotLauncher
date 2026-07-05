@@ -47,11 +47,20 @@ if [[ "$status" == "online" && "$FORCE" -eq 0 ]]; then
   exit 0
 fi
 
+LOG_START_DIR="$(ensure_log_start_dir)"
+export MON_LOG_START_DIR="$LOG_START_DIR"
+append_process_log "MonBot PM2 启动流程开始"
+echo "日志根目录: $MON_LOG_ROOT"
+echo "本次启动目录: $MON_LOG_START_DIR"
+echo
+
 if [[ "$status" == "missing" ]]; then
   run_pm2_quiet start "$ECOSYSTEM_FILE" --only "$PM2_APP_NAME"
 else
   run_pm2_quiet restart "$PM2_APP_NAME" --update-env
 fi
+
+append_process_log "MonBot PM2 进程启动 - $PM2_APP_NAME"
 
 echo
 pm2_process_summary "$PM2_APP_NAME"

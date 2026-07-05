@@ -27,6 +27,7 @@ if [[ "$status" == "missing" ]]; then
 fi
 
 run_pm2_quiet stop "$NAPCAT_PM2_NAME"
+append_process_log "NapCat PM2 进程停止 - $NAPCAT_PM2_NAME"
 echo
 pm2_process_summary "$NAPCAT_PM2_NAME"
 

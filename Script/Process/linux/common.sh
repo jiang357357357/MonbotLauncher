@@ -9,6 +9,9 @@ ECOSYSTEM_FILE="$SCRIPT_DIR/ecosystem.config.cjs"
 BOT_ENTRY="$PROJECT_ROOT/BotCore/bot.py"
 VENV_PYTHON="$PROJECT_ROOT/.venv/bin/python"
 
+# shellcheck source=log_paths.sh
+source "$SCRIPT_DIR/log_paths.sh"
+
 read_monconfig_value() {
   local section="$1"
   local key="$2"
@@ -155,6 +158,7 @@ export MON_PM2_NAME="$PM2_APP_NAME"
 export MON_PROCESS_TAG="$PROCESS_TAG"
 export MON_SERVER_PORT="$SERVER_PORT"
 export MON_BOT_ENTRY="$BOT_ENTRY"
+export MON_PROJECT_ROOT="$PROJECT_ROOT"
 export PYTHONUNBUFFERED=1
 export PYTHONIOENCODING=utf-8
 export PYTHONUTF8=1

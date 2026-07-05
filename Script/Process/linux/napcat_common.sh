@@ -7,6 +7,9 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 CONFIG_FILE="$PROJECT_ROOT/.monconfig"
 NAPCAT_ECOSYSTEM_FILE="$SCRIPT_DIR/napcat.ecosystem.config.cjs"
 
+# shellcheck source=log_paths.sh
+source "$SCRIPT_DIR/log_paths.sh"
+
 read_monconfig_value() {
   local section="$1"
   local key="$2"

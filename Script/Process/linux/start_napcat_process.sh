@@ -54,11 +54,20 @@ if [[ "$status" == "online" && "$FORCE" -eq 0 ]]; then
   exit 0
 fi
 
+LOG_START_DIR="$(ensure_log_start_dir)"
+export MON_LOG_START_DIR="$LOG_START_DIR"
+append_process_log "NapCat PM2 启动流程开始"
+echo "日志根目录: $MON_LOG_ROOT"
+echo "本次启动目录: $MON_LOG_START_DIR"
+echo
+
 if [[ "$status" == "missing" ]]; then
   run_pm2_quiet start "$NAPCAT_ECOSYSTEM_FILE" --only "$NAPCAT_PM2_NAME"
 else
   run_pm2_quiet restart "$NAPCAT_PM2_NAME" --update-env
 fi
+
+append_process_log "NapCat PM2 进程启动 - $NAPCAT_PM2_NAME"
 
 echo
 pm2_process_summary "$NAPCAT_PM2_NAME"
