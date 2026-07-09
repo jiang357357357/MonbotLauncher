@@ -44,6 +44,7 @@ IP=                                 # 服务器 IP（留空则 UDP 自动发现�
 HTTP_HOST=localhost                 # HTTP 访问地址（用于下载音频）
 DISCOVERY_PORT=6060                 # UDP 发现端口
 WS_PORT=8000                        # WebSocket 连接端口
+PAIRING_TOKEN=                      # Mon Web 生成的一次性 QQBot 用户绑定令牌
 
 # ==============================
 # [napcat] NapCat 插件配置

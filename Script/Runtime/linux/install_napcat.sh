@@ -161,6 +161,18 @@ prepare_sudo_for_runtime() {
     return 3
   fi
 
+  if [[ -n "$REAL_SUDO" && -t 0 ]]; then
+    echo "[*] 正在请求 sudo 授权..."
+    if "$REAL_SUDO" -v; then
+      create_sudo_wrapper nopass
+      echo "[OK] sudo 授权通过，已启用受控 sudo 包装器"
+      return 0
+    fi
+    echo "[x] sudo 授权失败"
+    echo "[NAPCAT_STATUS:SUDO_AUTH_FAILED]"
+    return 3
+  fi
+
   if command -v pkexec >/dev/null 2>&1 && [[ -n "${DISPLAY:-${WAYLAND_DISPLAY:-}}" ]]; then
     create_sudo_wrapper pkexec
     echo "[OK] 将通过 pkexec 图形授权执行系统依赖安装"
