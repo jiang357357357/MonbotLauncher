@@ -99,7 +99,7 @@ set -euo pipefail
 
 BUNDLE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BOTLAUNCHER_ROOT=""
-INSTALLER_ARGS=(--docker n --cli n --proxy 0 --confirm y)
+INSTALLER_ARGS=(--docker n --cli n --proxy 0)
 
 usage() {
   cat <<'HELP'
@@ -108,7 +108,7 @@ usage() {
 
 示例:
   ./install-offline.sh --botlauncher /home/manager/work/Mon/BotLauncher
-  ./install-offline.sh --botlauncher /home/manager/work/Mon/BotLauncher -- --docker n --cli n --proxy 0 --confirm y
+  ./install-offline.sh --botlauncher /home/manager/work/Mon/BotLauncher -- --docker n --cli n --proxy 0
 HELP
 }
 

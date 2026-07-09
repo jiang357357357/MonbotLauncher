@@ -90,7 +90,7 @@ pm2 logs bot
 
 NapCatQQ 当前许可证包含非商业使用限制；`Mon` 主仓库、`BotLauncher` 源码仓库、`ConfigAppReact`/`Web` 客户端分发仓库都不要提交 NapCat 源码、二进制或解压后的运行时目录。需要面向客户提供 NapCat 离线安装能力时，在 Gitee 上单独建立私有运行时仓库，例如 `shopownerjiang/MonNapCatRuntime`，只存放 NapCat/QQ 离线运行时包、manifest、checksums 和恢复/安装脚本。
 
-默认本机部署目录是 `BotLauncher/napcat`，该目录已被 Git 忽略。在线安装仍可通过官方安装器拉取到本机；离线分发则从 Gitee 私有运行时仓库下载或拷贝离线包后安装。
+默认本机部署目录是 `BotLauncher/napcat`，该目录已被 Git 忽略。Linux 安装脚本默认从 Gitee 私有运行时仓库下载离线包、恢复归档并安装到本机；NapCat 本体仍不进入 Mon 主仓库或现有子模块仓库。
 
 参考：
 
@@ -119,14 +119,14 @@ Linux：
 # 检查本机是否已有 NapCat
 Script/Runtime/linux/check_napcat.sh
 
-# 默认执行官方安装器，安装到 BotLauncher/napcat
+# 默认从 Gitee 私有运行时仓库恢复离线包，并安装到 BotLauncher/napcat
 Script/Runtime/linux/install_napcat.sh
 
-# 只下载官方安装器到 napcat/.installer，不执行安装
+# 只拉取并恢复 Gitee 离线包，不执行安装
 Script/Runtime/linux/install_napcat.sh --download-only
 
-# 显式确认许可证后在 BotLauncher/napcat 中执行官方安装器
-Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n
+# 指定运行时版本，并透传 NapCat 官方安装器参数
+Script/Runtime/linux/install_napcat.sh --version v4.18.7 -- --docker n --cli n --proxy 0
 
 # 由 PM2 启动 NapCat
 Script/Process/linux/start_napcat_process.sh
@@ -159,6 +159,8 @@ powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1
 # 显式确认许可证后在 BotLauncher/napcat 中执行官方安装器
 powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1 -RunInstaller -AcceptNapCatLicense
 ```
+
+当前 Gitee 运行时仓库只发布了 `linux-x64` 离线包；Windows 脚本仍保留在线安装器流程。
 
 如已获得 NapCatQQ 主作者对商业分发的明确授权，再单独维护 Gitee 私有运行时仓库中的离线包；默认流程保持外置运行时，不把 NapCat 本体推送到 `Mon` 主仓库或客户端 `dist` 仓库。
 
