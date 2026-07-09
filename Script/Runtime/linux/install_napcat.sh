@@ -106,17 +106,11 @@ EOF
   fi
 }
 
-read_sudo_password_from_stdin() {
-  local password=""
-  IFS= read -r password || true
-  if [[ -z "$password" ]]; then
-    return 1
-  fi
-
+store_sudo_password_file() {
+  local password="$1"
   SUDO_PASSWORD_FILE="$(mktemp "${TMPDIR:-/tmp}/mon-napcat-sudo-pass.XXXXXX")"
   chmod 600 "$SUDO_PASSWORD_FILE"
   printf '%s\n' "$password" >"$SUDO_PASSWORD_FILE"
-  printf '%s\n' "$password"
 }
 
 prepare_sudo_for_runtime() {
@@ -143,12 +137,14 @@ prepare_sudo_for_runtime() {
     fi
 
     echo "[*] 正在验证 sudo 密码..."
-    local sudo_password
-    if ! sudo_password="$(read_sudo_password_from_stdin)"; then
+    local sudo_password=""
+    IFS= read -r sudo_password || true
+    if [[ -z "$sudo_password" ]]; then
       echo "[x] sudo 密码为空，无法完成授权"
       echo "[NAPCAT_STATUS:SUDO_REQUIRED]"
       return 3
     fi
+    store_sudo_password_file "$sudo_password"
     if printf '%s\n' "$sudo_password" | timeout 20s "$REAL_SUDO" -S -p "" -v; then
       unset sudo_password
       create_sudo_wrapper password
@@ -156,6 +152,8 @@ prepare_sudo_for_runtime() {
       return 0
     fi
     unset sudo_password
+    rm -f "$SUDO_PASSWORD_FILE"
+    SUDO_PASSWORD_FILE=""
     echo "[x] sudo 密码验证失败"
     echo "[NAPCAT_STATUS:SUDO_AUTH_FAILED]"
     return 3
