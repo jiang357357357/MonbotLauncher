@@ -10,6 +10,7 @@ PROCESS_DIR="$PROJECT_ROOT/Script/Process/linux"
 
 INCLUDE_IMAGE=1
 PRETTY=0
+QUERY_LOGIN=1
 
 print_usage() {
   cat <<'EOF'
@@ -19,6 +20,7 @@ print_usage() {
 选项:
   --no-image  不输出 qrcodeDataUrl，仅输出二维码路径
   --pretty    格式化 JSON
+  --no-login  只读取运行时文件；登录状态由调用方使用缓存凭证查询
   -h, --help  显示帮助
 
 说明:
@@ -35,6 +37,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --pretty)
       PRETTY=1
+      shift
+      ;;
+    --no-login)
+      QUERY_LOGIN=0
       shift
       ;;
     -h|--help)
@@ -81,6 +87,7 @@ export WEBUI_CONFIG
 export QRCODE_PATH
 export INCLUDE_IMAGE
 export PRETTY
+export QUERY_LOGIN
 
 python3 - <<'PY'
 import base64
@@ -262,7 +269,7 @@ payload = {
         "modifiedAt": modified_at(qrcode_path),
         "dataUrl": qrcode_data_url(qrcode_path, include_image),
     },
-    "login": read_login_info(webui_url, token),
+    "login": read_login_info(webui_url, token) if env("QUERY_LOGIN") == "1" else None,
 }
 
 print(json.dumps(payload, ensure_ascii=False, indent=2 if pretty else None))
