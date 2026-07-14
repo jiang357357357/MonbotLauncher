@@ -16,7 +16,7 @@ echo "NapCat 外置运行时卸载工具 (Linux)"
 echo "================================================"
 echo "项目目录: $PROJECT_ROOT"
 echo "部署目录: $NAPCAT_HOME"
-echo "PM2 应用: $NAPCAT_PM2_NAME"
+echo "MonPM 应用: $NAPCAT_MONPM_NAME"
 echo
 
 safe_removable_path() {
@@ -81,18 +81,8 @@ remove_path() {
   return 3
 }
 
-if command -v pm2 >/dev/null 2>&1; then
-  pm2_status="$(pm2_named_status "$NAPCAT_PM2_NAME" 2>/dev/null || printf 'missing')"
-  if [[ "$pm2_status" != "missing" ]]; then
-    echo "[*] 停止并移除 PM2 应用: $NAPCAT_PM2_NAME ($pm2_status)"
-    run_pm2_quiet delete "$NAPCAT_PM2_NAME" || true
-    pm2_cmd save --force >/dev/null 2>&1 || true
-  else
-    echo "[i] PM2 中未找到 NapCat 应用"
-  fi
-else
-  echo "[i] 未找到 pm2，跳过 PM2 清理"
-fi
+echo "[*] 停止 MonPM 应用: $NAPCAT_MONPM_NAME"
+"$MONPM_MODULE" "$NAPCAT_MONPM_NAME" stop || true
 
 if docker_container_exists "$NAPCAT_DOCKER_CONTAINER"; then
   echo "[*] 删除 Docker 容器: $NAPCAT_DOCKER_CONTAINER"

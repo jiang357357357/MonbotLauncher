@@ -15,7 +15,7 @@ export XDG_CACHE_HOME="$NAPCAT_HOME/.cache"
 export XDG_DATA_HOME="$NAPCAT_HOME/.local/share"
 
 echo "================================================"
-echo "NapCat PM2 前台运行器"
+echo "NapCat MonPM 前台运行器"
 echo "================================================"
 echo "项目目录: $PROJECT_ROOT"
 echo "部署目录: $NAPCAT_HOME"
@@ -64,7 +64,7 @@ case "$kind" in
     exec docker start -a "$NAPCAT_DOCKER_CONTAINER"
     ;;
   *)
-    echo "[x] 未发现可由 PM2 启动的 NapCat 运行时"
+    echo "[x] 未发现可由 MonPM 启动的 NapCat 运行时"
     echo "    默认 Shell 路径: $NAPCAT_INSTALL_BASE_DIR/opt/QQ/qq"
     echo "    默认部署目录: $NAPCAT_HOME"
     echo "    安装命令: bash Script/Runtime/linux/install_napcat.sh --run-installer --accept-napcat-license -- --docker n --cli n --proxy 0"

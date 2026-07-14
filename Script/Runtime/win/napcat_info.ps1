@@ -7,12 +7,14 @@ $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "../../..")
+$MonRoot = Resolve-Path (Join-Path $ProjectRoot "..")
+$MonPmLauncher = Join-Path $MonRoot "Script/launch/win/monpm.ps1"
 $NapCatHome = if ($env:MON_NAPCAT_HOME) { $env:MON_NAPCAT_HOME } else { Join-Path $ProjectRoot "napcat" }
 $InstallBaseDir = if ($env:MON_NAPCAT_INSTALL_BASE_DIR) { $env:MON_NAPCAT_INSTALL_BASE_DIR } else { Join-Path $NapCatHome "Napcat" }
 $PluginDir = Join-Path $InstallBaseDir "opt/QQ/resources/app/app_launcher/napcat"
 $WebuiConfig = Join-Path $PluginDir "config/webui.json"
 $QrcodePath = Join-Path $PluginDir "cache/qrcode.png"
-$Pm2Name = if ($env:MON_NAPCAT_PM2_NAME) { $env:MON_NAPCAT_PM2_NAME } else { "napcat" }
+$MonPmName = "napcat"
 
 function Get-ModifiedAt {
     param([string]$Path)
@@ -31,19 +33,18 @@ function Get-QrcodeDataUrl {
     return "data:image/png;base64,$([Convert]::ToBase64String($Bytes))"
 }
 
-function Get-Pm2Status {
+function Get-MonPmStatus {
     try {
-        $Pm2 = Get-Command pm2 -ErrorAction SilentlyContinue
-        if (-not $Pm2) {
+        if (-not (Test-Path -LiteralPath $MonPmLauncher)) {
             return "unknown"
         }
-        $Json = & pm2 jlist
+        $Json = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $MonPmLauncher -Action list -Json
         $Apps = $Json | ConvertFrom-Json
-        $App = $Apps | Where-Object { $_.name -eq $Pm2Name } | Select-Object -First 1
+        $App = $Apps | Where-Object { $_.name -eq $MonPmName } | Select-Object -First 1
         if (-not $App) {
             return "missing"
         }
-        return $App.pm2_env.status
+        return $App.state
     }
     catch {
         return "unknown"
@@ -76,7 +77,7 @@ if ($PortValue) {
     }
 }
 
-$Pm2Status = Get-Pm2Status
+$MonPmStatus = Get-MonPmStatus
 $LaunchKind = if (Test-Path -Path (Join-Path $PluginDir "napcat.mjs")) { "shell" } else { "missing" }
 if ($LaunchKind -eq "missing") {
     $Status = "notInstalled"
@@ -84,10 +85,10 @@ if ($LaunchKind -eq "missing") {
 elseif ($WebuiError) {
     $Status = "missingConfig"
 }
-elseif ($Pm2Status -eq "online") {
+elseif ($MonPmStatus -eq "running") {
     $Status = "running"
 }
-elseif ($Pm2Status -eq "missing") {
+elseif ($MonPmStatus -eq "missing" -or $MonPmStatus -eq "stopped") {
     $Status = "notRunning"
 }
 else {
@@ -96,8 +97,8 @@ else {
 
 $Payload = [ordered]@{
     status = $Status
-    pm2Name = $Pm2Name
-    pm2Status = $Pm2Status
+    monpmName = $MonPmName
+    monpmStatus = $MonPmStatus
     launchKind = $LaunchKind
     runtimeRoot = [string]$NapCatHome
     installBaseDir = [string]$InstallBaseDir

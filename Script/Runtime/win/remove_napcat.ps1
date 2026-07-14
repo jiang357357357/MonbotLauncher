@@ -2,15 +2,17 @@ $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "../../..")
+$MonRoot = Resolve-Path (Join-Path $ProjectRoot "..")
+$MonPmLauncher = Join-Path $MonRoot "Script/launch/win/monpm.ps1"
 $NapCatHome = if ($env:MON_NAPCAT_HOME) { $env:MON_NAPCAT_HOME } else { Join-Path $ProjectRoot "napcat" }
-$Pm2Name = if ($env:MON_NAPCAT_PM2_NAME) { $env:MON_NAPCAT_PM2_NAME } else { "napcat" }
+$MonPmName = "napcat"
 
 Write-Host "================================================"
 Write-Host "NapCat 外置运行时卸载工具 (Windows)"
 Write-Host "================================================"
 Write-Host "项目目录: $ProjectRoot"
 Write-Host "部署目录: $NapCatHome"
-Write-Host "PM2 应用: $Pm2Name"
+Write-Host "MonPM 应用: $MonPmName"
 Write-Host ""
 
 function Test-SafeRemovePath {
@@ -24,26 +26,11 @@ function Test-SafeRemovePath {
 }
 
 try {
-    $Pm2 = Get-Command pm2 -ErrorAction SilentlyContinue
-    if ($Pm2) {
-        $Json = & pm2 jlist
-        $Apps = $Json | ConvertFrom-Json
-        $App = $Apps | Where-Object { $_.name -eq $Pm2Name } | Select-Object -First 1
-        if ($App) {
-            Write-Host "[*] 停止并移除 PM2 应用: $Pm2Name"
-            & pm2 delete $Pm2Name | Out-Host
-            & pm2 save --force | Out-Null
-        }
-        else {
-            Write-Host "[i] PM2 中未找到 NapCat 应用"
-        }
-    }
-    else {
-        Write-Host "[i] 未找到 pm2，跳过 PM2 清理"
-    }
+    Write-Host "[*] 停止 MonPM 应用: $MonPmName"
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $MonPmLauncher -Action stop -Name $MonPmName | Out-Host
 }
 catch {
-    Write-Host "[!] PM2 清理失败: $($_.Exception.Message)"
+    Write-Host "[!] MonPM 清理失败: $($_.Exception.Message)"
 }
 
 if (Test-Path -Path $NapCatHome) {

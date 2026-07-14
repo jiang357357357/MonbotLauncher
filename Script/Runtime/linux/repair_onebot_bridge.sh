@@ -65,12 +65,9 @@ if [[ "$kind" == "missing" ]]; then
   exit 0
 fi
 
-PM2_STATUS="unknown"
-if command -v pm2 >/dev/null 2>&1; then
-  PM2_STATUS="$(pm2_named_status "$NAPCAT_PM2_NAME" 2>/dev/null || printf 'unknown')"
-fi
-if [[ "$PM2_STATUS" != "online" ]]; then
-  echo "[i] NapCat 未运行，跳过 OneBot 接入修复: $PM2_STATUS"
+MONPM_STATUS="$(monpm_named_status "$NAPCAT_MONPM_NAME" 2>/dev/null || printf 'unknown')"
+if [[ "$MONPM_STATUS" != "running" ]]; then
+  echo "[i] NapCat 未运行，跳过 OneBot 接入修复: $MONPM_STATUS"
   echo "[ONEBOT_BRIDGE_STATUS:SKIPPED_NOT_RUNNING]"
   exit 0
 fi

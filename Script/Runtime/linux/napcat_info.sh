@@ -24,7 +24,7 @@ print_usage() {
   -h, --help  显示帮助
 
 说明:
-  输出 JSON 给 ConfigAppReact 读取。包含 WebUI 地址、token、二维码路径、二维码 data URL 和 PM2 状态。
+  输出 JSON 给 ConfigAppReact 读取。包含 WebUI 地址、token、二维码路径、二维码 data URL 和 MonPM 状态。
   token 与二维码是敏感信息，请只在本机管理界面展示，不要写入远程日志。
 EOF
 }
@@ -58,10 +58,7 @@ done
 # shellcheck source=../../Process/linux/napcat_common.sh
 source "$PROCESS_DIR/napcat_common.sh"
 
-PM2_STATUS="unknown"
-if command -v pm2 >/dev/null 2>&1; then
-  PM2_STATUS="$(pm2_named_status "$NAPCAT_PM2_NAME" 2>/dev/null || printf 'unknown')"
-fi
+MONPM_STATUS="$(monpm_named_status "$NAPCAT_MONPM_NAME" 2>/dev/null || printf 'unknown')"
 
 LAUNCH_KIND="$(detect_napcat_launch_kind)"
 PLUGIN_ENTRY="$(napcat_shell_plugin_entry 2>/dev/null || true)"
@@ -75,13 +72,13 @@ WEBUI_CONFIG="$NAPCAT_PLUGIN_DIR/config/webui.json"
 QRCODE_PATH="$NAPCAT_PLUGIN_DIR/cache/qrcode.png"
 
 export PROJECT_ROOT
-export NAPCAT_PM2_NAME
+export NAPCAT_MONPM_NAME
 export NAPCAT_HOME
 export NAPCAT_INSTALL_BASE_DIR
 export NAPCAT_PLUGIN_DIR
 export NAPCAT_QQ_EXECUTABLE
 export NAPCAT_MODE
-export PM2_STATUS
+export MONPM_STATUS
 export LAUNCH_KIND
 export WEBUI_CONFIG
 export QRCODE_PATH
@@ -230,24 +227,24 @@ if port:
     if token:
         webui_url += f"?token={token}"
 
-pm2_status = env("PM2_STATUS", "unknown")
+monpm_status = env("MONPM_STATUS", "unknown")
 launch_kind = env("LAUNCH_KIND", "missing")
 
 if launch_kind == "missing":
     status = "notInstalled"
 elif webui_error:
     status = "missingConfig"
-elif pm2_status == "online":
+elif monpm_status == "running":
     status = "running"
-elif pm2_status == "missing":
+elif monpm_status in ("missing", "stopped"):
     status = "notRunning"
 else:
     status = "unknown"
 
 payload = {
     "status": status,
-    "pm2Name": env("NAPCAT_PM2_NAME"),
-    "pm2Status": pm2_status,
+    "monpmName": env("NAPCAT_MONPM_NAME"),
+    "monpmStatus": monpm_status,
     "launchKind": launch_kind,
     "runtimeRoot": path_info(env("NAPCAT_HOME")),
     "installBaseDir": path_info(env("NAPCAT_INSTALL_BASE_DIR")),

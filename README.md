@@ -66,9 +66,9 @@ uv run python MonQQBotCore/MonBot/bot.py
 python main_launcher.py
 ```
 
-### Linux PM2 启动
+### Linux MonPM 启动
 
-Linux 环境先安装依赖，再交给 PM2 托管 QQBot 进程：
+Linux 环境先安装依赖，再交给 MonPM 托管 QQBot 进程：
 
 ```bash
 Script/EnvTools/linux/install_env.sh
@@ -81,10 +81,10 @@ Script/Cmd/linux/start.sh
 Script/Process/linux/status_process.sh
 Script/Process/linux/stop_process.sh
 Script/Process/linux/restart_process.sh
-pm2 logs bot
+Script/Process/linux/logs_process.sh
 ```
 
-当前 Linux PM2 脚本会先尝试启动 NapCat，再启动 `BotCore/bot.py`。NapCat 和 MonBot 是两个 PM2 应用，分别是 `napcat` 与 `bot`。
+当前 Linux MonPM 脚本会先尝试启动 NapCat，再启动 `BotCore/bot.py`。NapCat 和 MonBot 是两个独立应用，分别是 `napcat` 与 `bot`。
 
 ### NapCat 外置运行时
 
@@ -128,7 +128,7 @@ Script/Runtime/linux/install_napcat.sh --download-only
 # 指定运行时版本，并透传 NapCat 官方安装器参数
 Script/Runtime/linux/install_napcat.sh --version v4.18.7 -- --docker n --cli n --proxy 0
 
-# 由 PM2 启动 NapCat
+# 由 MonPM 启动 NapCat
 Script/Process/linux/start_napcat_process.sh
 
 # 查看/停止/重启 NapCat
@@ -166,18 +166,18 @@ powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1 -
 
 `napcat_info` 脚本会输出 JSON，字段包含：
 
-- `status` / `pm2Status` / `launchKind`
+- `status` / `monpmStatus` / `launchKind`
 - `webui.url` / `webui.token` / `webui.configPath`
 - `qrcode.path` / `qrcode.dataUrl` / `qrcode.modifiedAt`
 
 其中 `webui.token` 和 `qrcode.dataUrl` 属于敏感信息，只应在本机管理界面展示，不要写入远程日志。
 
-NapCat PM2 管理读取 `.monconfig` 的 `[napcat_process]`：
+NapCat MonPM 前台运行器读取 `.monconfig` 的 `[napcat_process]`：
 
 - `MODE=auto`：自动探测 Shell、AppImage、Docker 或自定义命令。
 - `HOME=napcat`：NapCat 的本机部署根目录。
 - `INSTALL_BASE_DIR=napcat/Napcat`：官方 Shell 安装器生成的主安装目录。
-- `COMMAND=`：当 `MODE=custom` 时由 PM2 直接执行。
+- `COMMAND=`：当 `MODE=custom` 时由 MonPM 直接执行。
 
 ## 项目结构
 

@@ -11,8 +11,6 @@ PROCESS_DIR="$PROJECT_ROOT/Script/Process/linux"
 # shellcheck source=../../Process/linux/napcat_common.sh
 source "$PROCESS_DIR/napcat_common.sh"
 
-ensure_pm2
-
 kind="$(detect_napcat_launch_kind)"
 PLUGIN_ENTRY="$(napcat_shell_plugin_entry 2>/dev/null || true)"
 if [[ -n "$PLUGIN_ENTRY" ]]; then
@@ -28,7 +26,7 @@ echo "================================================"
 echo "NapCat QQ 退出工具"
 echo "================================================"
 echo "项目目录: $PROJECT_ROOT"
-echo "应用名称: $NAPCAT_PM2_NAME"
+echo "应用名称: $NAPCAT_MONPM_NAME"
 echo "运行模式: $kind"
 echo "WebUI配置: $WEBUI_CONFIG"
 echo
@@ -116,15 +114,10 @@ PY
 
 echo
 echo "[1/2] 重启 NapCat，使其回到扫码登录入口..."
-status="$(pm2_named_status "$NAPCAT_PM2_NAME")"
-if [[ "$status" == "missing" ]]; then
-  run_pm2_quiet start "$NAPCAT_ECOSYSTEM_FILE" --only "$NAPCAT_PM2_NAME"
-else
-  run_pm2_quiet restart "$NAPCAT_PM2_NAME" --update-env
-fi
+"$MONPM_MODULE" "$NAPCAT_MONPM_NAME" restart
 
 echo
-echo "[2/2] PM2 状态"
-pm2_process_summary "$NAPCAT_PM2_NAME"
+echo "[2/2] MonPM 状态"
+"$MONPM_MODULE" "$NAPCAT_MONPM_NAME" status
 echo
 echo "[NAPCAT_LOGOUT:RESTARTED_FOR_LOGIN]"
