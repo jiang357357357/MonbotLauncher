@@ -22,7 +22,7 @@ Write-Host "部署目录: $NapCatHome"
 Write-Host "安装器目录: $InstallerRoot"
 Write-Host "官方安装器: $InstallerUrl"
 Write-Host ""
-Write-Host "[!] NapCatQQ 本体不应进入 Mon 的 Gitee 分发仓库。" -ForegroundColor Yellow
+Write-Host "[!] NapCatQQ 本体不应进入 Mon 的 GitCode 源码或客户端分发仓库。" -ForegroundColor Yellow
 Write-Host "[!] 如需商业或客户分发，请先取得 NapCatQQ 主作者明确授权。" -ForegroundColor Yellow
 Write-Host ""
 

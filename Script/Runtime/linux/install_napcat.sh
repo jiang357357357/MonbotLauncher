@@ -6,11 +6,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 NAPCAT_HOME="${MON_NAPCAT_HOME:-$PROJECT_ROOT/napcat}"
 
-RUNTIME_REPO_URL="${MON_NAPCAT_RUNTIME_REPO_URL:-https://gitee.com/shopownerjiang/MonNapCatRuntime.git}"
+RUNTIME_REPO_URL="${MON_NAPCAT_RUNTIME_REPO_URL:-https://gitcode.com/zz357357357/MonNapCatRuntime.git}"
 RUNTIME_REPO_BRANCH="${MON_NAPCAT_RUNTIME_REPO_BRANCH:-master}"
 RUNTIME_PLATFORM="${MON_NAPCAT_RUNTIME_PLATFORM:-linux-x64}"
 RUNTIME_VERSION="${MON_NAPCAT_RUNTIME_VERSION:-latest}"
-RUNTIME_CACHE_ROOT="${MON_NAPCAT_RUNTIME_CACHE_ROOT:-$PROJECT_ROOT/.runtime/napcat-gitee}"
+RUNTIME_CACHE_ROOT="${MON_NAPCAT_RUNTIME_CACHE_ROOT:-$PROJECT_ROOT/.runtime/napcat-gitcode}"
 RUNTIME_REPO_DIR="$RUNTIME_CACHE_ROOT/MonNapCatRuntime"
 
 DOWNLOAD_ONLY=0
@@ -38,14 +38,14 @@ print_usage() {
   bash Script/Runtime/linux/install_napcat.sh [选项] [-- 安装器参数...]
 
 选项:
-  --download-only          只拉取并恢复 Gitee 离线包，不执行安装
+  --download-only          只拉取并恢复 GitCode 离线包，不执行安装
   --run-installer          拉取离线包后执行安装（默认，兼容旧参数）
   --accept-napcat-license  兼容旧参数；离线包发布前已确认授权边界
   --version VERSION        NapCat 运行时版本，默认 latest
   --platform PLATFORM      运行时平台，默认 linux-x64
-  --runtime-repo URL       Gitee 运行时仓库地址
-  --runtime-branch BRANCH  Gitee 运行时仓库分支，默认 master
-  --cache-root PATH        离线包缓存目录，默认 BotLauncher/.runtime/napcat-gitee
+  --runtime-repo URL       GitCode 运行时仓库地址
+  --runtime-branch BRANCH  GitCode 运行时仓库分支，默认 master
+  --cache-root PATH        离线包缓存目录，默认 BotLauncher/.runtime/napcat-gitcode
   --force                  重新拉取运行时仓库
   -h, --help               显示帮助
 
@@ -55,7 +55,7 @@ print_usage() {
   bash Script/Runtime/linux/install_napcat.sh --version v4.18.7 -- --docker n --cli n --proxy 0
 
 说明:
-  本脚本默认从 Gitee 私有运行时仓库拉取 NapCat 离线包，并安装到 BotLauncher/napcat。
+  本脚本默认从 GitCode 私有运行时仓库拉取 NapCat 离线包，并安装到 BotLauncher/napcat。
   NapCat 本体不进入 Mon 主仓库、BotLauncher 源码仓库或客户端 dist 仓库。
 EOF
 }
@@ -199,7 +199,7 @@ fetch_runtime_repo() {
   fi
 
   if [[ -d "$RUNTIME_REPO_DIR/.git" ]]; then
-    echo "[*] 更新 Gitee NapCat 运行时仓库..."
+    echo "[*] 更新 GitCode NapCat 运行时仓库..."
     git -C "$RUNTIME_REPO_DIR" remote set-url origin "$RUNTIME_REPO_URL"
     git -C "$RUNTIME_REPO_DIR" fetch --quiet --depth 1 origin "$RUNTIME_REPO_BRANCH"
     git -c advice.detachedHead=false -C "$RUNTIME_REPO_DIR" checkout -f --detach FETCH_HEAD >/dev/null 2>&1
@@ -207,7 +207,7 @@ fetch_runtime_repo() {
     return 0
   fi
 
-  echo "[*] 拉取 Gitee NapCat 运行时仓库..."
+  echo "[*] 拉取 GitCode NapCat 运行时仓库..."
   echo "    $RUNTIME_REPO_URL ($RUNTIME_REPO_BRANCH)"
   GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch "$RUNTIME_REPO_BRANCH" "$RUNTIME_REPO_URL" "$RUNTIME_REPO_DIR"
 }
@@ -354,7 +354,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 echo "================================================"
-echo "NapCat Gitee 离线运行时安装器 (Linux)"
+echo "NapCat GitCode 离线运行时安装器 (Linux)"
 echo "================================================"
 echo "项目目录: $PROJECT_ROOT"
 echo "部署目录: $NAPCAT_HOME"
@@ -365,7 +365,7 @@ echo "运行时版本: $RUNTIME_VERSION"
 echo "缓存目录: $RUNTIME_CACHE_ROOT"
 echo
 echo "[!] NapCat 本体不进入 Mon 主仓库或客户端 dist 仓库。"
-echo "[!] 当前脚本从单独的 Gitee 运行时仓库恢复离线包。"
+echo "[!] 当前脚本从单独的 GitCode 私有运行时仓库恢复离线包。"
 echo
 
 fetch_runtime_repo
