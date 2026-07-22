@@ -75,18 +75,28 @@ if (expr === "tag") {
 }
 
 default_qq_url() {
+  local installer_file="$1"
+  local architecture_pattern
+
   case "$PLATFORM" in
     linux-x64)
-      printf '%s\n' "https://dldir1.qq.com/qqfile/qq/QQNT/7516007c/linuxqq_3.2.25-45758_amd64.deb"
+      architecture_pattern='(amd64|x86_64)\.deb'
       ;;
     linux-arm64)
-      printf '%s\n' "https://dldir1.qq.com/qqfile/qq/QQNT/7516007c/linuxqq_3.2.25-45758_arm64.deb"
+      architecture_pattern='(arm64|aarch64)\.deb'
       ;;
     *)
       echo "[FAIL] 不支持的平台: $PLATFORM" >&2
       exit 1
       ;;
   esac
+
+  # NapCat's installer is the authoritative compatibility source for Linux QQ.
+  # Resolve the URL from the downloaded installer instead of pinning an URL that
+  # becomes invalid whenever Tencent rotates the QQ build directory.
+  grep -Eo 'https://[^"[:space:]]+linuxqq_[^"[:space:]]+' "$installer_file" \
+    | grep -E "$architecture_pattern" \
+    | head -n 1
 }
 
 write_install_offline_script() {
@@ -301,7 +311,6 @@ if [[ -z "$NAPCAT_VERSION" || -z "$NAPCAT_SHELL_URL" ]]; then
   exit 1
 fi
 
-QQ_URL="${MON_NAPCAT_QQ_URL:-$(default_qq_url)}"
 release_dir="$RELEASE_ROOT/dist/napcat/$PLATFORM/$NAPCAT_VERSION"
 work_root="$RELEASE_ROOT/work"
 bundle_name="NapCat-$PLATFORM-$NAPCAT_VERSION-offline"
@@ -323,6 +332,11 @@ echo
 
 download_file "$INSTALLER_URL" "$bundle_dir/install.sh" "NapCat 官方安装器"
 download_file "$NAPCAT_SHELL_URL" "$bundle_dir/NapCat.Shell.zip" "NapCat.Shell.zip"
+QQ_URL="${MON_NAPCAT_QQ_URL:-$(default_qq_url "$bundle_dir/install.sh")}"
+if [[ -z "$QQ_URL" ]]; then
+  echo "[FAIL] 无法从 NapCat 官方安装器解析 $PLATFORM 的 Linux QQ 下载地址" >&2
+  exit 1
+fi
 download_file "$QQ_URL" "$bundle_dir/QQ.deb" "Linux QQ"
 chmod +x "$bundle_dir/install.sh"
 write_install_offline_script "$bundle_dir/install-offline.sh"
