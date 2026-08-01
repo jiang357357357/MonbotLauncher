@@ -1,4 +1,4 @@
-# MonBot 环境删除脚本 (PowerShell)
+# MonBot environment removal script (PowerShell)
 
 param(
     [switch]$NoWait
@@ -18,7 +18,7 @@ $Removed = 0
 foreach ($Path in $PathsToRemove) {
     if (Test-Path $Path) {
         Remove-Item -Recurse -Force $Path
-        Write-Host "✓ 已删除: $Path" -ForegroundColor Green
+        Write-Host "[OK] Removed: $Path" -ForegroundColor Green
         $Removed++
     }
 }

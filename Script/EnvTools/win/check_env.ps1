@@ -1,4 +1,4 @@
-# MonBot 环境检查脚本 (PowerShell)
+# MonBot environment check script (PowerShell)
 
 param(
     [switch]$NoWait
@@ -12,41 +12,41 @@ $ProjectRoot = (Get-Item "$ScriptRoot\..\..\..").FullName
 $VenvPython = "$ProjectRoot\.venv\Scripts\python.exe"
 
 Write-Host ""
-Write-Host "╔════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║          MonBot 环境检查工具                          ║" -ForegroundColor Cyan
-Write-Host "╚════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+Write-Host "========================================================" -ForegroundColor Cyan
+Write-Host "          MonBot environment checker" -ForegroundColor Cyan
+Write-Host "========================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "项目目录: $ProjectRoot" -ForegroundColor Cyan
+Write-Host "Project directory: $ProjectRoot" -ForegroundColor Cyan
 Write-Host ""
 
 $CheckPassed = $true
 $Warnings = 0
 
-Write-Host "[1/4] 检查项目配置..." -ForegroundColor Magenta
+Write-Host "[1/4] Checking project configuration..." -ForegroundColor Magenta
 if (Test-Path "$ProjectRoot\pyproject.toml") {
-    Write-Host "  ✓ pyproject.toml 存在" -ForegroundColor Green
+    Write-Host "  [OK] pyproject.toml exists" -ForegroundColor Green
 } else {
-    Write-Host "  ✗ 未找到 pyproject.toml" -ForegroundColor Red
+    Write-Host "  [x] pyproject.toml not found" -ForegroundColor Red
     $CheckPassed = $false
 }
 Write-Host ""
 
-Write-Host "[2/4] 检查虚拟环境..." -ForegroundColor Magenta
+Write-Host "[2/4] Checking the virtual environment..." -ForegroundColor Magenta
 if (-not (Test-Path "$ProjectRoot\.venv")) {
-    Write-Host "  ✗ 虚拟环境不存在 (.venv)" -ForegroundColor Red
+    Write-Host "  [x] Virtual environment does not exist (.venv)" -ForegroundColor Red
     $CheckPassed = $false
 } else {
-    Write-Host "  ✓ 虚拟环境存在" -ForegroundColor Green
+    Write-Host "  [OK] Virtual environment exists" -ForegroundColor Green
     if (Test-Path $VenvPython) {
-        Write-Host "  ✓ Python: $(& $VenvPython --version)" -ForegroundColor Green
+        Write-Host "  [OK] Python: $(& $VenvPython --version)" -ForegroundColor Green
     } else {
-        Write-Host "  ✗ 虚拟环境损坏 (未找到 python.exe)" -ForegroundColor Red
+        Write-Host "  [x] Virtual environment is invalid (python.exe not found)" -ForegroundColor Red
         $CheckPassed = $false
     }
 }
 Write-Host ""
 
-Write-Host "[3/4] 检查关键依赖..." -ForegroundColor Magenta
+Write-Host "[3/4] Checking critical dependencies..." -ForegroundColor Magenta
 if (Test-Path $VenvPython) {
     $packages = @(
         @{ Name = "nonebot2"; Code = "from importlib.metadata import version; print(version('nonebot2'))" },
@@ -57,23 +57,23 @@ if (Test-Path $VenvPython) {
     foreach ($package in $packages) {
         $result = & $VenvPython -c $package.Code 2>$null
         if ($LASTEXITCODE -eq 0 -and $result) {
-            Write-Host "  ✓ $($package.Name): $result" -ForegroundColor Green
+            Write-Host "  [OK] $($package.Name): $result" -ForegroundColor Green
         } else {
-            Write-Host "  ✗ $($package.Name) 未安装" -ForegroundColor Red
+            Write-Host "  [x] $($package.Name) is not installed" -ForegroundColor Red
             $CheckPassed = $false
         }
     }
 } else {
-    Write-Host "  ✗ 无法检查依赖 (虚拟环境不存在)" -ForegroundColor Red
+    Write-Host "  [x] Cannot check dependencies (virtual environment missing)" -ForegroundColor Red
     $CheckPassed = $false
 }
 Write-Host ""
 
-Write-Host "[4/4] 检查日志目录..." -ForegroundColor Magenta
+Write-Host "[4/4] Checking the log directory..." -ForegroundColor Magenta
 if (Test-Path "$ProjectRoot\logs") {
-    Write-Host "  ✓ logs 目录存在" -ForegroundColor Green
+    Write-Host "  [OK] logs directory exists" -ForegroundColor Green
 } else {
-    Write-Host "  ⚠ logs 目录不存在" -ForegroundColor Yellow
+    Write-Host "  [!] logs directory does not exist" -ForegroundColor Yellow
     $Warnings++
 }
 Write-Host ""

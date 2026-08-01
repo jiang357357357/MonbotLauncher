@@ -210,10 +210,15 @@ SCRIPT_RUNTIME_WIN_NAPCAT_INSTALL=Script/Runtime/win/install_napcat.ps1
 SCRIPT_RUNTIME_WIN_NAPCAT_REMOVE=Script/Runtime/win/remove_napcat.ps1
 SCRIPT_RUNTIME_WIN_NAPCAT_CHECK=Script/Runtime/win/check_napcat.ps1
 SCRIPT_RUNTIME_WIN_NAPCAT_INFO=Script/Runtime/win/napcat_info.ps1
+SCRIPT_RUNTIME_WIN_NAPCAT_LOGOUT=Script/Runtime/win/napcat_logout.ps1
 SCRIPT_NAPCAT_PROCESS_LINUX_START=Script/Process/linux/start_napcat_process.sh
 SCRIPT_NAPCAT_PROCESS_LINUX_STOP=Script/Process/linux/stop_napcat_process.sh
 SCRIPT_NAPCAT_PROCESS_LINUX_STATUS=Script/Process/linux/status_napcat_process.sh
 SCRIPT_NAPCAT_PROCESS_LINUX_RESTART=Script/Process/linux/restart_napcat_process.sh
+SCRIPT_NAPCAT_PROCESS_WIN_START=Script/Process/win/start_napcat_process.ps1
+SCRIPT_NAPCAT_PROCESS_WIN_STOP=Script/Process/win/stop_napcat_process.ps1
+SCRIPT_NAPCAT_PROCESS_WIN_STATUS=Script/Process/win/status_napcat_process.ps1
+SCRIPT_NAPCAT_PROCESS_WIN_RESTART=Script/Process/win/restart_napcat_process.ps1
 
 # ==============================
 # [napcat_process] NapCat 进程管理

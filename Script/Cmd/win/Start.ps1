@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
-    MonBot 完全启动器
-    NapCat 在新窗口启动，QQBot 在当前终端运行。
+    Full MonBot launcher.
+    Starts NapCat in a new window and runs QQBot in the current terminal.
 #>
 
 param(
@@ -18,44 +18,58 @@ $ProjectRoot = (Get-Item "$ScriptRoot\..\..\..").FullName
 $VenvPython = "$ProjectRoot\.venv\Scripts\python.exe"
 $PythonExe = if (Test-Path $VenvPython) { $VenvPython } else { "python" }
 
-$NapcatScript = "$ProjectRoot\napcat\launcher.bat"
+$NapcatInfoScript = "$ProjectRoot\Script\Runtime\win\napcat_info.ps1"
+$NapcatStartScript = "$ProjectRoot\Script\Process\win\start_napcat_process.ps1"
 $BotEntry = "$ProjectRoot\BotCore\bot.py"
 
 Write-Host "================================================" -ForegroundColor Cyan
-Write-Host "MonBot 完全启动 (NapCat + QQBot)" -ForegroundColor Cyan
+Write-Host "Full MonBot startup (NapCat + QQBot)" -ForegroundColor Cyan
 Write-Host "================================================" -ForegroundColor Cyan
-Write-Host "项目目录: $ProjectRoot" -ForegroundColor Gray
+Write-Host "Project directory: $ProjectRoot" -ForegroundColor Gray
 Write-Host "Python:   $PythonExe" -ForegroundColor Gray
 Write-Host ""
 
 $ok = $true
 if (-not (Test-Path $PythonExe)) {
-    Write-Host "[✗] 虚拟环境不存在，请先运行 uv sync" -ForegroundColor Red
+    Write-Host "[x] Virtual environment not found; run uv sync first" -ForegroundColor Red
     $ok = $false
 }
 if (-not (Test-Path $BotEntry)) {
-    Write-Host "[✗] QQBot 入口不存在: $BotEntry" -ForegroundColor Red
+    Write-Host "[x] QQBot entry point not found: $BotEntry" -ForegroundColor Red
     $ok = $false
 }
 if (-not $ok) {
-    Read-Host "按 Enter 退出"
+    Read-Host "Press Enter to exit"
     exit 1
 }
 
-$hasNapcat = Test-Path $NapcatScript
+$hasNapcat = $false
+if ((Test-Path $NapcatInfoScript) -and (Test-Path $NapcatStartScript)) {
+    try {
+        $NapcatJson = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $NapcatInfoScript -NoImage -NoLogin 2>$null
+        $NapcatInfo = $NapcatJson | ConvertFrom-Json
+        $hasNapcat = $NapcatInfo.launchKind -ne "missing"
+    }
+    catch {
+        Write-Host "[1/2] [!] Failed to inspect NapCat; skipping: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+}
 
 if ($hasNapcat) {
-    Write-Host "[1/2] 🚀 启动 NapCat（新窗口）..." -ForegroundColor Magenta
-    Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle = 'NapCat'; & '$NapcatScript'" -WorkingDirectory "$ProjectRoot\napcat"
-    Write-Host "  ✓ NapCat 已在新窗口启动" -ForegroundColor Green
-    Write-Host "  等待 5 秒初始化..." -ForegroundColor Yellow
+    Write-Host "[1/2] Starting NapCat through MonPM..." -ForegroundColor Magenta
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $NapcatStartScript
+    if ($LASTEXITCODE -ne 0) {
+        throw "NapCat startup failed with exit code $LASTEXITCODE"
+    }
+    Write-Host "  [OK] NapCat start command completed" -ForegroundColor Green
+    Write-Host "  Waiting 5 seconds for initialization..." -ForegroundColor Yellow
     Start-Sleep -Seconds 5
 } else {
-    Write-Host "[1/2] ⚠ NapCat 未部署，跳过" -ForegroundColor Yellow
+    Write-Host "[1/2] [!] NapCat is not deployed; skipping" -ForegroundColor Yellow
 }
 Write-Host ""
 
-Write-Host "[2/2] 🚀 启动 QQBot（当前终端）... 按 Ctrl+C 停止" -ForegroundColor Magenta
+Write-Host "[2/2] Starting QQBot in the current terminal... Press Ctrl+C to stop" -ForegroundColor Magenta
 Write-Host ""
 Set-Location $ProjectRoot
 & $PythonExe $BotEntry
