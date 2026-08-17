@@ -32,7 +32,6 @@
 | 模块 | 进程标识符 |
 |------|-----------|
 | MonCore | `core` |
-| MonHub | `hub` |
 | MonOs | `os` |
 
 ### 进程标识符输出
@@ -171,18 +170,13 @@ if ($process) {
 ```env
 # MonCore
 MONCORE_PROCESS_NAME=core
-MONCORE_START=Backend\Server\scripts\Start\start_moncore.ps1
-MONCORE_STOP=Backend\Server\scripts\Start\stop_moncore.ps1
-
-# MonHub
-MONHUB_PROCESS_NAME=hub
-MONHUB_START=Backend\Hub\Script\main\start_monhub.ps1
-MONHUB_STOP=Backend\Hub\Script\main\stop_monhub.ps1
+MONCORE_START=Server\scripts\Start\start_moncore.ps1
+MONCORE_STOP=Server\scripts\Start\stop_moncore.ps1
 
 # MonOs
 MONOS_PROCESS_NAME=os
-MONOS_START=Backend\BaseOs\Script\main\start_monos.ps1
-MONOS_STOP=Backend\BaseOs\Script\main\stop_monos.ps1
+MONOS_START=BaseOs\Script\main\start_monos.ps1
+MONOS_STOP=BaseOs\Script\main\stop_monos.ps1
 ```
 
 ---

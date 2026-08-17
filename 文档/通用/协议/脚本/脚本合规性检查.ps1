@@ -23,24 +23,18 @@ Write-Host ""
 # Scripts to check.
 $ScriptsToCheck = @(
     # MonCore scripts.
-    @{Path = "Backend\Server\Script\EnvTools\win\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonCore"},
-    @{Path = "Backend\Server\Script\EnvTools\win\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonCore"},
-    @{Path = "Backend\Server\Script\EnvTools\win\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonCore"},
-    @{Path = "Backend\Server\scripts\Start\start_moncore.ps1"; Type = "SERVER_START"; Module = "MonCore"},
-    @{Path = "Backend\Server\scripts\DB\migrate_db.py"; Type = "DB_MIGRATE"; Module = "MonCore"},
-    @{Path = "Backend\Server\scripts\DB\init_admin.py"; Type = "DB_INIT"; Module = "MonCore"},
-    
-    # MonHub scripts.
-    @{Path = "Backend\Hub\Script\EnvTools\win\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonHub"},
-    @{Path = "Backend\Hub\Script\EnvTools\win\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonHub"},
-    @{Path = "Backend\Hub\Script\EnvTools\win\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonHub"},
-    @{Path = "Backend\Hub\Script\main\start_monhub.ps1"; Type = "SERVER_START"; Module = "MonHub"},
+    @{Path = "Server\Script\EnvTools\win\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonCore"},
+    @{Path = "Server\Script\EnvTools\win\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonCore"},
+    @{Path = "Server\Script\EnvTools\win\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonCore"},
+    @{Path = "Server\scripts\Start\start_moncore.ps1"; Type = "SERVER_START"; Module = "MonCore"},
+    @{Path = "Server\scripts\DB\migrate_db.py"; Type = "DB_MIGRATE"; Module = "MonCore"},
+    @{Path = "Server\scripts\DB\init_admin.py"; Type = "DB_INIT"; Module = "MonCore"},
     
     # MonOs scripts.
-    @{Path = "Backend\BaseOs\Script\EnvTools\win\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonOs"},
-    @{Path = "Backend\BaseOs\Script\EnvTools\win\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonOs"},
-    @{Path = "Backend\BaseOs\Script\EnvTools\win\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonOs"},
-    @{Path = "Backend\BaseOs\Script\main\start_monos.ps1"; Type = "SERVER_START"; Module = "MonOs"},
+    @{Path = "BaseOs\Script\EnvTools\win\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonOs"},
+    @{Path = "BaseOs\Script\EnvTools\win\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonOs"},
+    @{Path = "BaseOs\Script\EnvTools\win\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonOs"},
+    @{Path = "BaseOs\Script\main\start_monos.ps1"; Type = "SERVER_START"; Module = "MonOs"},
     
     # Shared scripts.
     @{Path = "scripts\7zip\pack.ps1"; Type = "PACK"; Module = "Common"}

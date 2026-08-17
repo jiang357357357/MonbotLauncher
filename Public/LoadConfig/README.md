@@ -4,8 +4,8 @@
 
 ## 功能特性
 
-- ✅ 自动查找 `.monconfig` 文件（向上最多 10 层）
-- ✅ 多层配置继承（近层覆盖远层）
+- ✅ 自动查找最近的模块 `.monconfig`
+- ✅ 使用双锚点识别 Mon 工作区
 - ✅ 配置节分组管理
 - ✅ 类型自动转换（bool, int, float, list）
 - ✅ 工作区根目录识别
@@ -126,46 +126,29 @@ hosts = config.get("django", "ALLOWED_HOSTS", cast=list)
 # ['localhost', '127.0.0.1', '0.0.0.0']
 ```
 
-## 配置继承
+## 配置边界
 
 ### 查找规则
 
-从当前目录向上查找最多 10 层 `.monconfig` 文件：
+从当前目录向上找到最近的一份 `.monconfig`：
 
 ```
-当前目录/.monconfig          ← 优先级最高（覆盖下层）
-  ↓ 合并
-父目录/.monconfig            ← 优先级中等
-  ↓ 合并  
-祖父目录/.monconfig          ← 优先级最低（提供默认值）
+当前目录/.monconfig          ← 当前模块配置
 ```
 
 ### 合并规则
 
-- **同名变量**：近层覆盖远层
-- **不同配置节**：自动合并
-- **未定义变量**：继承上层
+- 不合并父目录配置。
+- 工作区使用 `.monconfig` + `.monworkspace` 双锚点识别。
+- 跨模块依赖必须显式读取目标模块配置。
 
 ### 示例
 
 ```
-# 全局配置 (项目根/.monconfig)
+# 模块配置 (MonBot/.monconfig)
 [server]
 HOST=127.0.0.1
-PORT=8000
-DEBUG=false
-
-# 模块配置 (MonBot/.monconfig)  
-[server]
-HOST=0.0.0.0        # 覆盖全局的 127.0.0.1
-PORT=6020           # 覆盖全局的 8000
-# DEBUG 继承全局的 false
-
-# 最终合并结果：
-[server]
-HOST=0.0.0.0        # 来自模块配置
-PORT=6020           # 来自模块配置  
-DEBUG=false         # 来自全局配置
+PORT=8080
 ```
 
 ## API 参考

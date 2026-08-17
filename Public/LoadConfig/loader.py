@@ -1,9 +1,8 @@
 """
-MonConfig 配置加载器
-实现 .monconfig 文件的查找、解析和多层继承
+MonConfig 模块配置加载器
+只加载最近的模块 .monconfig，并识别 Mon 双锚点工作区
 """
 
-import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Union
 from configparser import ConfigParser
@@ -16,8 +15,8 @@ class MonConfig:
     MonConfig 配置加载器
     
     功能：
-    - 从当前目录向上查找最多 10 层 .monconfig 文件
-    - 支持多层配置继承（近层覆盖远层）
+    - 从当前目录向上查找最近的 .monconfig 文件
+    - 不进行父目录配置继承
     - 支持配置节分组
     - 支持类型转换（bool, int, float, list）
     
@@ -36,7 +35,7 @@ class MonConfig:
     """
     
     CONFIG_FILENAME = ".monconfig"
-    MAX_SEARCH_DEPTH = 10
+    WORKSPACE_FILENAME = ".monworkspace"
     
     def __init__(self, start_path: Optional[Union[str, Path]] = None):
         """
@@ -46,9 +45,10 @@ class MonConfig:
             start_path: 开始查找的路径（默认为当前工作目录）
         """
         self.start_path = Path(start_path) if start_path else Path.cwd()
-        self._config = ConfigParser()
+        self._config = ConfigParser(interpolation=None)
         self._loaded_files: List[Path] = []
         self._workspace_root: Optional[Path] = None
+        self._mon_root: Optional[Path] = None
         
         # 加载配置
         self._load_configs()
@@ -62,23 +62,25 @@ class MonConfig:
         """
         config_files = []
         current_path = self.start_path.resolve()
-        
-        for _ in range(self.MAX_SEARCH_DEPTH):
+        if current_path.is_file():
+            current_path = current_path.parent
+
+        while True:
             config_file = current_path / self.CONFIG_FILENAME
-            if config_file.exists() and config_file.is_file():
+            if self._mon_root is None and config_file.is_file() and (current_path / self.WORKSPACE_FILENAME).is_file():
+                self._mon_root = current_path
+            if not config_files and config_file.is_file():
                 config_files.append(config_file)
-                # 第一个找到的配置文件所在目录为工作区根目录
-                if self._workspace_root is None:
-                    self._workspace_root = current_path
-            
-            # 到达根目录，停止查找
+                self._workspace_root = current_path
+
             parent = current_path.parent
             if parent == current_path:
                 break
             current_path = parent
-        
-        # 反转列表，使远层配置在前（先加载远层，后加载近层实现覆盖）
-        return list(reversed(config_files))
+
+        if self._mon_root is None:
+            self._mon_root = self._workspace_root
+        return config_files
     
     def _load_configs(self):
         """加载所有找到的配置文件"""
@@ -87,12 +89,25 @@ class MonConfig:
         if not config_files:
             raise ConfigNotFoundError(
                 f"未找到 {self.CONFIG_FILENAME} 配置文件 "
-                f"(从 {self.start_path} 向上查找 {self.MAX_SEARCH_DEPTH} 层)"
+                f"(从 {self.start_path} 向上查找)"
             )
         
         for config_file in config_files:
             try:
-                self._config.read(config_file, encoding='utf-8')
+                normalized_lines = []
+                for line_number, raw_line in enumerate(config_file.read_text(encoding="utf-8").splitlines(), start=1):
+                    line = self._strip_inline_comment(raw_line).strip()
+                    if not line:
+                        continue
+                    if line.startswith("["):
+                        if not line.endswith("]") or not line[1:-1].strip():
+                            raise ValueError(f"{config_file}:{line_number}: 无效的配置节")
+                        normalized_lines.append(f"[{line[1:-1].strip().lower()}]")
+                    elif "=" in line and line.split("=", 1)[0].strip():
+                        normalized_lines.append(line)
+                    else:
+                        raise ValueError(f"{config_file}:{line_number}: 配置项必须使用 KEY=VALUE")
+                self._config.read_string("\n".join(normalized_lines), source=str(config_file))
                 self._loaded_files.append(config_file)
             except Exception as e:
                 raise ConfigParseError(
@@ -151,12 +166,21 @@ class MonConfig:
         Returns:
             清理后的值
         """
-        # 去除行尾注释（# 开头）
-        if '#' in value:
-            value = value.split('#')[0]
-        
-        # 去除首尾空白
         return value.strip()
+
+    @staticmethod
+    def _strip_inline_comment(line: str) -> str:
+        in_single_quote = False
+        in_double_quote = False
+        for index, character in enumerate(line):
+            if character == "'" and not in_double_quote:
+                in_single_quote = not in_single_quote
+            elif character == '"' and not in_single_quote:
+                in_double_quote = not in_double_quote
+            elif character in "#;" and not in_single_quote and not in_double_quote:
+                if index == 0 or line[index - 1].isspace():
+                    return line[:index]
+        return line
     
     def _cast_value(self, value: str, cast_type: type) -> Any:
         """
@@ -272,6 +296,12 @@ class MonConfig:
             工作区根目录路径
         """
         return self._workspace_root
+
+    def module_root(self) -> Optional[Path]:
+        return self._workspace_root
+
+    def mon_root(self) -> Optional[Path]:
+        return self._mon_root
     
     def loaded_files(self) -> List[Path]:
         """
