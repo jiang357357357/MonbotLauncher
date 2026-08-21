@@ -26,7 +26,12 @@ if ($Info.launchKind -eq "missing" -or $Info.status -eq "notInstalled") {
 
 Write-Host "[OK] NapCat runtime: $($Info.installBaseDir)" -ForegroundColor Green
 Write-Host "[OK] Launch kind: $($Info.launchKind)" -ForegroundColor Green
-Write-Host "[OK] WebUI config: $($Info.webui.configPath)" -ForegroundColor Green
+if ($Info.webui.configExists) {
+    Write-Host "[OK] WebUI config: $($Info.webui.configPath)" -ForegroundColor Green
+}
+else {
+    Write-Host "[i] WebUI config will be generated after the first successful NapCat start: $($Info.webui.configPath)" -ForegroundColor Yellow
+}
 Write-Host ""
 Write-Host "[NAPCAT_STATUS:INSTALLED]"
 Write-Host "[NAPCAT_HOME:$($Info.runtimeRoot)]"

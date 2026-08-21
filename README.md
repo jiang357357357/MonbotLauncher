@@ -152,14 +152,14 @@ Windows：
 # 检查本机是否已有 NapCat
 powershell -ExecutionPolicy Bypass -File Script/Runtime/win/check_napcat.ps1
 
-# 只下载官方安装器到 napcat/.installer，不执行安装
+# 只下载并校验官方 NapCat.Shell.zip，不执行安装
 powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1
 
-# 显式确认许可证后在 BotLauncher/napcat 中执行官方安装器
+# 显式确认许可证后安装到 BotLauncher/napcat/Napcat，并复用系统 QQ
 powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1 -RunInstaller -AcceptNapCatLicense
 ```
 
-当前 GitCode 运行时仓库只发布了 `linux-x64` 离线包；Windows 脚本仍保留在线安装器流程。
+当前 GitCode 运行时仓库只发布了 `linux-x64` 离线包。Windows 脚本从 NapCat 官方 GitHub Release 获取 `NapCat.Shell.zip`，验证 Release 提供的 SHA-256 后安装；本机必须已安装官方 QQ。
 
 如已获得 NapCatQQ 主作者对商业分发的明确授权，再单独维护 GitCode 私有运行时仓库中的离线包；默认流程保持外置运行时，不把 NapCat 本体推送到 `Mon` 主仓库或客户端 Release。
 

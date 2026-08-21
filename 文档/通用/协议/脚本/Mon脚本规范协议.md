@@ -170,8 +170,8 @@ if ($process) {
 ```env
 # MonCore
 MONCORE_PROCESS_NAME=core
-MONCORE_START=Server\scripts\Start\start_moncore.ps1
-MONCORE_STOP=Server\scripts\Start\stop_moncore.ps1
+MONCORE_START=Core\scripts\Start\start_moncore.ps1
+MONCORE_STOP=Core\scripts\Start\stop_moncore.ps1
 
 # MonOs
 MONOS_PROCESS_NAME=os

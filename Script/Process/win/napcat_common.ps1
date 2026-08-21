@@ -12,11 +12,44 @@ $NapCatMonPmName = "napcat"
 
 function Get-NapCatPluginEntry {
     if (-not (Test-Path -LiteralPath $NapCatHome -PathType Container)) { return $null }
+    $StandaloneEntry = Join-Path $NapCatHome "Napcat\napcat.mjs"
+    if (Test-Path -LiteralPath $StandaloneEntry -PathType Leaf) {
+        return (Get-Item -LiteralPath $StandaloneEntry).FullName
+    }
     $Entry = Get-ChildItem -LiteralPath $NapCatHome -Recurse -File -Filter "napcat.mjs" -ErrorAction SilentlyContinue |
-        Where-Object { $_.FullName -match '[\\/]resources[\\/]app[\\/](app_launcher[\\/])?napcat[\\/]napcat\.mjs$' } |
+        Where-Object {
+            $_.FullName -match '[\\/]resources[\\/]app[\\/](app_launcher[\\/])?napcat[\\/]napcat\.mjs$' -or
+            (Test-Path -LiteralPath (Join-Path $_.DirectoryName "NapCatWinBootMain.exe") -PathType Leaf)
+        } |
         Sort-Object LastWriteTimeUtc -Descending |
         Select-Object -First 1
     if ($Entry) { return $Entry.FullName }
+    return $null
+}
+
+function Get-NapCatQqExecutable {
+    if ($env:MON_NAPCAT_QQ_EXECUTABLE -and (Test-Path -LiteralPath $env:MON_NAPCAT_QQ_EXECUTABLE -PathType Leaf)) {
+        return (Get-Item -LiteralPath $env:MON_NAPCAT_QQ_EXECUTABLE).FullName
+    }
+    $RegistryKeys = @(
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\QQ",
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\QQ",
+        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\QQ"
+    )
+    foreach ($Key in $RegistryKeys) {
+        try {
+            $UninstallString = [string](Get-ItemProperty -LiteralPath $Key -ErrorAction Stop).UninstallString
+            if (-not [string]::IsNullOrWhiteSpace($UninstallString)) {
+                $Candidate = Join-Path (Split-Path -Parent $UninstallString.Trim().Trim('"')) "QQ.exe"
+                if (Test-Path -LiteralPath $Candidate -PathType Leaf) {
+                    return (Get-Item -LiteralPath $Candidate).FullName
+                }
+            }
+        }
+        catch {
+            continue
+        }
+    }
     return $null
 }
 
@@ -95,10 +128,16 @@ function Invoke-NapCatMonPm {
 
 function Get-NapCatMonPmStatus {
     Initialize-NapCatMonPmConfig
-    $Json = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $NapCatMonPmLauncher -Action list -Json
+    $RawOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $NapCatMonPmLauncher -Action list -Json
     if ($LASTEXITCODE -ne 0) { throw "Failed to read MonPM status: $LASTEXITCODE" }
-    $Apps = $Json | ConvertFrom-Json
+    $JsonText = $RawOutput -join "`n"
+    $JsonStart = $JsonText.IndexOf("[")
+    if ($JsonStart -lt 0) {
+        throw "MonPM list did not return a JSON array."
+    }
+    $Apps = $JsonText.Substring($JsonStart) | ConvertFrom-Json
     $App = $Apps | Where-Object { $_.name -eq $NapCatMonPmName } | Select-Object -First 1
     if (-not $App) { return "missing" }
+    if ($App.lifecycle_state) { return [string]$App.lifecycle_state }
     return [string]$App.state
 }

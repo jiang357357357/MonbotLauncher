@@ -38,12 +38,18 @@ function Get-MonPmStatus {
         if (-not (Test-Path -LiteralPath $MonPmLauncher -PathType Leaf)) {
             return "unknown"
         }
-        $Json = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $MonPmLauncher -Action list -Json 2>$null
-        $Apps = $Json | ConvertFrom-Json
+        $RawOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $MonPmLauncher -Action list -Json 2>$null
+        $JsonText = $RawOutput -join "`n"
+        $JsonStart = $JsonText.IndexOf("[")
+        if ($JsonStart -lt 0) {
+            return "unknown"
+        }
+        $Apps = $JsonText.Substring($JsonStart) | ConvertFrom-Json
         $App = $Apps | Where-Object { $_.name -eq $MonPmName } | Select-Object -First 1
         if (-not $App) {
             return "missing"
         }
+        if ($App.lifecycle_state) { return [string]$App.lifecycle_state }
         return [string]$App.state
     }
     catch {
@@ -52,6 +58,10 @@ function Get-MonPmStatus {
 }
 
 function Find-NapCatPluginEntry {
+    $StandaloneEntry = Join-Path $DefaultInstallBaseDir "napcat.mjs"
+    if (Test-Path -LiteralPath $StandaloneEntry -PathType Leaf) {
+        return (Get-Item -LiteralPath $StandaloneEntry).FullName
+    }
     $FixedEntry = Join-Path $DefaultInstallBaseDir "opt\QQ\resources\app\app_launcher\napcat\napcat.mjs"
     if (Test-Path -LiteralPath $FixedEntry -PathType Leaf) {
         return (Get-Item -LiteralPath $FixedEntry).FullName
@@ -60,7 +70,10 @@ function Find-NapCatPluginEntry {
         return $null
     }
     $Entry = Get-ChildItem -LiteralPath $NapCatHome -Recurse -File -Filter "napcat.mjs" -ErrorAction SilentlyContinue |
-        Where-Object { $_.FullName -match '[\\/]resources[\\/]app[\\/](app_launcher[\\/])?napcat[\\/]napcat\.mjs$' } |
+        Where-Object {
+            $_.FullName -match '[\\/]resources[\\/]app[\\/](app_launcher[\\/])?napcat[\\/]napcat\.mjs$' -or
+            (Test-Path -LiteralPath (Join-Path $_.DirectoryName "NapCatWinBootMain.exe") -PathType Leaf)
+        } |
         Sort-Object LastWriteTimeUtc -Descending |
         Select-Object -First 1
     if ($Entry) { return $Entry.FullName }
@@ -97,6 +110,25 @@ function Find-QqExecutable {
             Sort-Object LastWriteTimeUtc -Descending |
             Select-Object -First 1
         if ($Qq) { return $Qq.FullName }
+    }
+    $RegistryKeys = @(
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\QQ",
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\QQ",
+        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\QQ"
+    )
+    foreach ($Key in $RegistryKeys) {
+        try {
+            $UninstallString = [string](Get-ItemProperty -LiteralPath $Key -ErrorAction Stop).UninstallString
+            if (-not [string]::IsNullOrWhiteSpace($UninstallString)) {
+                $Candidate = Join-Path (Split-Path -Parent $UninstallString.Trim().Trim('"')) "QQ.exe"
+                if (Test-Path -LiteralPath $Candidate -PathType Leaf) {
+                    return (Get-Item -LiteralPath $Candidate).FullName
+                }
+            }
+        }
+        catch {
+            continue
+        }
     }
     return ""
 }
@@ -157,7 +189,11 @@ function Get-LoginInfo {
         return $Login
     }
     try {
-        $BaseUrl = $WebuiUrl.Split("/webui", 2)[0]
+        $WebuiPathIndex = $WebuiUrl.IndexOf("/webui", [System.StringComparison]::OrdinalIgnoreCase)
+        if ($WebuiPathIndex -lt 0) {
+            throw "Invalid WebUI URL: $WebuiUrl"
+        }
+        $BaseUrl = $WebuiUrl.Substring(0, $WebuiPathIndex)
         $Digest = Get-Sha256Text -Text "$Token.napcat"
         $Auth = Invoke-WebuiPost -BaseUrl $BaseUrl -Path "/api/auth/login" -Payload @{ hash = $Digest }
         if ($Auth.code -ne 0) {

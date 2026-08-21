@@ -6,7 +6,7 @@
 
 ### Changed
 
-- 脚本协议文档中的 MonCore 与 MonOs 路径切换为根目录 `Server/` 与 `BaseOs/`。
+- 脚本协议文档中的 MonCore 与 MonOs 路径切换为根目录 `Core/` 与 `BaseOs/`。
 
 ## [1.8.0] - 2026-08-05
 

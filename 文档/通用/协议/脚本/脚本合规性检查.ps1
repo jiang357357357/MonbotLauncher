@@ -23,12 +23,12 @@ Write-Host ""
 # Scripts to check.
 $ScriptsToCheck = @(
     # MonCore scripts.
-    @{Path = "Server\Script\EnvTools\win\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonCore"},
-    @{Path = "Server\Script\EnvTools\win\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonCore"},
-    @{Path = "Server\Script\EnvTools\win\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonCore"},
-    @{Path = "Server\scripts\Start\start_moncore.ps1"; Type = "SERVER_START"; Module = "MonCore"},
-    @{Path = "Server\scripts\DB\migrate_db.py"; Type = "DB_MIGRATE"; Module = "MonCore"},
-    @{Path = "Server\scripts\DB\init_admin.py"; Type = "DB_INIT"; Module = "MonCore"},
+    @{Path = "Core\Script\EnvTools\win\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonCore"},
+    @{Path = "Core\Script\EnvTools\win\install_env.ps1"; Type = "ENV_INSTALL"; Module = "MonCore"},
+    @{Path = "Core\Script\EnvTools\win\remove_env.ps1"; Type = "ENV_REMOVE"; Module = "MonCore"},
+    @{Path = "Core\scripts\Start\start_moncore.ps1"; Type = "SERVER_START"; Module = "MonCore"},
+    @{Path = "Core\scripts\DB\migrate_db.py"; Type = "DB_MIGRATE"; Module = "MonCore"},
+    @{Path = "Core\scripts\DB\init_admin.py"; Type = "DB_INIT"; Module = "MonCore"},
     
     # MonOs scripts.
     @{Path = "BaseOs\Script\EnvTools\win\check_env.ps1"; Type = "ENV_CHECK"; Module = "MonOs"},
