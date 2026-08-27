@@ -8,7 +8,7 @@
 # ==============================
 [service]
 NAME=MonBot
-VERSION=1.8.0
+VERSION=1.9.0
 ENVIRONMENT=prod                    # dev / prod
 
 # ==============================
@@ -33,8 +33,8 @@ SUPERUSERS=2740954024                 # 超级用户QQ号（逗号分隔）
 # [onebot] OneBot V11 适配器配置
 # ==============================
 [onebot]
-WS_URLS=ws://1.13.194.87:8050/?token=M79IAmt6cCrk3Tw1  # NapCat WebSocket 地址（token 拼在 URL）
-ACCESS_TOKEN=M79IAmt6cCrk3Tw1                           # 保留兼容（部分框架用 Header 传）
+WS_URLS=ws://127.0.0.1:3001                   # 本机 OneBot WebSocket；可由 MON_ONEBOT_WS_URLS 覆盖
+ACCESS_TOKEN=                                  # 仅从 Config/ENV/bot.env 或进程环境读取
 
 # ==============================
 # [moncore] MonCore 后端配置
@@ -160,7 +160,7 @@ REQUEST_TIMEOUT=10                  # 请求超时时间（秒）
 # [security] 安全配置
 # ==============================
 [security]
-API_SECRET_KEY=your_secret_key_here # API 密钥
+API_SECRET_KEY=                     # API 密钥必须通过私有环境配置注入
 ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000  # 允许的来源域名
 ENABLE_CORS=true                    # 启用CORS
 

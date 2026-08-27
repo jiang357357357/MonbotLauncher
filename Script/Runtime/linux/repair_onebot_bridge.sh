@@ -11,6 +11,7 @@ PROCESS_DIR="$PROJECT_ROOT/Script/Process/linux"
 HOST="${MON_ONEBOT_HOST:-127.0.0.1}"
 PORT="${MON_ONEBOT_PORT:-3001}"
 FORCE=0
+ROTATE_TOKEN=0
 
 usage() {
   cat <<'EOF'
@@ -21,10 +22,11 @@ usage() {
   --host HOST     OneBot WS 监听地址，默认 127.0.0.1
   --port PORT     OneBot WS 监听端口，默认 3001
   --force         即使检测到端口占用，也继续写入配置
+  --rotate-token  生成新令牌并使历史令牌立即失效
   -h, --help      显示帮助
 
 说明:
-  通过 NapCat WebUI API 创建或修复 OneBot WS 服务端，并同步 BotCore/.monconfig。
+  通过 NapCat WebUI API 创建或修复 OneBot WS 服务端，并同步工作区私有 bot.env。
   NapCat 未安装、未运行或 WebUI 不可用时会跳过，不阻断整次项目更新。
 EOF
 }
@@ -41,6 +43,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --force)
       FORCE=1
+      shift
+      ;;
+    --rotate-token)
+      ROTATE_TOKEN=1
       shift
       ;;
     -h|--help)
@@ -81,13 +87,16 @@ fi
 
 WEBUI_CONFIG="$NAPCAT_PLUGIN_DIR/config/webui.json"
 BOTCORE_CONFIG="$PROJECT_ROOT/BotCore/.monconfig"
+BOT_ENV="$PROJECT_ROOT/../Config/ENV/bot.env"
 
 export PROJECT_ROOT
 export WEBUI_CONFIG
 export BOTCORE_CONFIG
+export BOT_ENV
 export ONEBOT_HOST="$HOST"
 export ONEBOT_PORT="$PORT"
 export ONEBOT_FORCE="$FORCE"
+export ONEBOT_ROTATE_TOKEN="$ROTATE_TOKEN"
 
 python3 - <<'PY'
 import hashlib
@@ -157,55 +166,29 @@ def monconfig_value(path: Path, section: str, key: str) -> str:
     return ""
 
 
-def update_monconfig_values(path: Path, section: str, values: dict[str, str]) -> None:
-    content = path.read_text(encoding="utf-8") if path.exists() else ""
-    lines = content.splitlines()
-    output: list[str] = []
-    current = ""
-    target = section.lower()
-    seen = False
-    found = {key.upper(): False for key in values}
-
-    def append_missing() -> None:
-        for key, value in values.items():
-            if not found[key.upper()]:
-                output.append(f"{key}={value}")
-                found[key.upper()] = True
-
-    for raw in lines:
+def env_values(path: Path) -> dict[str, str]:
+    values: dict[str, str] = {}
+    if not path.exists():
+        return values
+    for raw in path.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
-        if line.startswith("[") and line.endswith("]"):
-            if seen and current == target:
-                append_missing()
-            current = line[1:-1].strip().lower()
-            if current == target:
-                seen = True
-            output.append(raw)
+        if not line or line.startswith("#") or "=" not in line:
             continue
+        key, value = line.split("=", 1)
+        values[key.strip()] = value.strip()
+    return values
 
-        if current == target and "=" in line:
-            raw_key, _ = line.split("=", 1)
-            normalized = raw_key.strip().upper()
-            match = next((key for key in values if key.upper() == normalized), None)
-            if match:
-                comment = ""
-                if "#" in raw:
-                    comment = " #" + raw.split("#", 1)[1]
-                output.append(f"{match}={values[match]}{comment}")
-                found[match.upper()] = True
-                continue
-        output.append(raw)
 
-    if seen and current == target:
-        append_missing()
-    if not seen:
-        if output and output[-1].strip():
-            output.append("")
-        output.append(f"[{section}]")
-        for key, value in values.items():
-            output.append(f"{key}={value}")
-
-    path.write_text("\n".join(output).rstrip() + "\n", encoding="utf-8")
+def update_env_values(path: Path, values: dict[str, str]) -> None:
+    merged = env_values(path)
+    merged.update(values)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "".join(f"{key}={value}\n" for key, value in sorted(merged.items())),
+        encoding="utf-8",
+    )
+    if os.name != "nt":
+        path.chmod(0o600)
 
 
 def port_open(host: str, port: int) -> bool:
@@ -222,15 +205,17 @@ def is_monbot_ws_server(value: dict) -> bool:
 def main() -> int:
     webui_config = Path(os.environ["WEBUI_CONFIG"])
     botcore_config = Path(os.environ["BOTCORE_CONFIG"])
+    bot_env = Path(os.environ["BOT_ENV"])
     host = os.environ.get("ONEBOT_HOST") or "127.0.0.1"
     port = int(os.environ.get("ONEBOT_PORT") or "3001")
     force = os.environ.get("ONEBOT_FORCE") == "1"
+    rotate_token = os.environ.get("ONEBOT_ROTATE_TOKEN") == "1"
 
     print("================================================")
     print("NapCat OneBot 接入修复")
     print("================================================")
     print(f"WebUI 配置: {webui_config}")
-    print(f"BotCore 配置: {botcore_config}")
+    print(f"Bot 私有配置: {bot_env}")
     print(f"目标 WS: ws://{host}:{port}")
 
     if not webui_config.exists():
@@ -287,11 +272,12 @@ def main() -> int:
             status("SKIPPED_PORT_BUSY")
             return 0
 
-    access_token = (
+    access_token = "" if rotate_token else (
         str((existing or {}).get("token") or "").strip()
+        or env_values(bot_env).get("MON_ONEBOT_ACCESS_TOKEN", "")
         or monconfig_value(botcore_config, "onebot", "ACCESS_TOKEN")
-        or hashlib.sha256(os.urandom(32)).hexdigest()[:16]
     )
+    access_token = access_token or hashlib.sha256(os.urandom(32)).hexdigest()[:16]
 
     server_value = {
         "enable": True,
@@ -312,12 +298,11 @@ def main() -> int:
     else:
         servers[existing_index] = server_value
 
-    update_monconfig_values(
-        botcore_config,
-        "onebot",
+    update_env_values(
+        bot_env,
         {
-            "WS_URLS": f"ws://{host}:{port}",
-            "ACCESS_TOKEN": access_token,
+            "MON_ONEBOT_WS_URLS": f"ws://{host}:{port}",
+            "MON_ONEBOT_ACCESS_TOKEN": access_token,
         },
     )
 
@@ -325,7 +310,7 @@ def main() -> int:
     api_data(post_json(base_url, "/api/OB11Config/SetConfig", payload, credential))
 
     print(f"[OK] 已同步 NapCat OneBot WS 服务端: ws://{host}:{port}")
-    print(f"[OK] 已同步 BotCore 配置: {botcore_config}")
+    print(f"[OK] 已同步 Bot 私有配置: {bot_env}")
     status("REPAIRED" if changed else "OK")
     return 0
 

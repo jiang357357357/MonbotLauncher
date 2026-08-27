@@ -57,7 +57,7 @@ monpm_named_status() {
     const fs = require("fs");
     const apps = JSON.parse(fs.readFileSync(0, "utf8") || "[]");
     const app = apps.find((item) => item.name === process.env.MONPM_STATUS_APP);
-    process.stdout.write(app ? app.state : "missing");
+    process.stdout.write(app ? (app.lifecycle_state || app.state || "unknown") : "missing");
   '
 }
 
