@@ -8,7 +8,7 @@
 # ==============================
 [service]
 NAME=MonBot
-VERSION=1.9.1
+VERSION=1.9.2
 ENVIRONMENT=prod                    # dev / prod
 
 # ==============================
