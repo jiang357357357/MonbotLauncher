@@ -33,10 +33,11 @@ Write-Host "[OK] pyproject.toml found" -ForegroundColor Green
 Write-Host ""
 
 Write-Host "[1/5] Checking the uv package manager..." -ForegroundColor Magenta
-$uvCmd = Get-Command "uv" -ErrorAction SilentlyContinue
-if (-not $uvCmd) {
+$uvVersion = & python -m uv --version 2>&1
+$uvAvailable = $LASTEXITCODE -eq 0
+if (-not $uvAvailable) {
     Write-Host "[x] uv is not installed; installing it automatically..." -ForegroundColor Yellow
-    pip install uv
+    & python -m pip install uv
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[x] uv installation failed" -ForegroundColor Red
         Write-Host "[INSTALL_STATUS:FAILED]" -ForegroundColor Red
@@ -45,12 +46,12 @@ if (-not $uvCmd) {
     }
     Write-Host "[OK] uv installed successfully" -ForegroundColor Green
 } else {
-    Write-Host "[OK] uv is installed: $(& uv --version)" -ForegroundColor Green
+    Write-Host "[OK] uv is installed: $uvVersion" -ForegroundColor Green
 }
 Write-Host ""
 
 Write-Host "[2/5] Installing Python 3.12.x..." -ForegroundColor Magenta
-& uv python install 3.12.6
+& python -m uv python install 3.12.6
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[x] Python installation failed" -ForegroundColor Red
     Pop-Location
@@ -58,7 +59,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "[OK] Python 3.12.6 installed successfully" -ForegroundColor Green
 
-& uv python pin 3.12.6
+& python -m uv python pin 3.12.6
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[x] Failed to pin the Python version" -ForegroundColor Red
     Pop-Location
@@ -73,7 +74,7 @@ if (Test-Path ".venv") {
     Write-Host "[OK] Previous virtual environment removed" -ForegroundColor Green
 }
 
-& uv sync
+& python -m uv sync
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[x] Dependency synchronization failed" -ForegroundColor Red
     Write-Host "[INSTALL_STATUS:FAILED]" -ForegroundColor Red
