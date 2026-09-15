@@ -4,10 +4,86 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-MON_ROOT="$(cd "$PROJECT_ROOT/.." && pwd)"
+
+find_mon_workspace_root() {
+  local current="$PROJECT_ROOT"
+  while [[ "$current" != "/" ]]; do
+    if [[ -f "$current/.monworkspace" ]]; then
+      printf '%s\n' "$current"
+      return 0
+    fi
+    current="$(dirname "$current")"
+  done
+  return 1
+}
+
+# BotLauncher can be a direct workspace submodule or live below QQBot in the
+# portable DLC. Locate the actual Eden root instead of assuming one parent.
+DISCOVERED_MON_ROOT="$(find_mon_workspace_root || true)"
+MON_ROOT="${MON_WORKSPACE_ROOT:-${DISCOVERED_MON_ROOT:-$(cd "$PROJECT_ROOT/.." && pwd)}}"
+
+has_monpm_control_root() {
+  local candidate="$1"
+  [[ -x "$candidate/bin/monpm" && -f "$candidate/.run/monpm/monpm.dlc.json" ]] \
+    || [[ -x "$candidate/Script/launch/linux/monpm.sh" ]]
+}
+
+# A clean portable deployment keeps optional DLCs beside the main LINUX
+# package. The DLC's own .monworkspace describes its modules, while the main
+# package owns the merged MonPM daemon and config.
+if ! has_monpm_control_root "$MON_ROOT"; then
+  MON_CONTAINER_ROOT="$(dirname "$MON_ROOT")"
+  for MON_ROOT_CANDIDATE in "$MON_CONTAINER_ROOT"/*; do
+    if [[ -d "$MON_ROOT_CANDIDATE" ]] && has_monpm_control_root "$MON_ROOT_CANDIDATE"; then
+      MON_ROOT="$MON_ROOT_CANDIDATE"
+      break
+    fi
+  done
+fi
 CONFIG_FILE="$PROJECT_ROOT/.monconfig"
 MONPM_MODULE="$MON_ROOT/Script/launch/linux/monpm-module.sh"
 MONPM_LAUNCHER="$MON_ROOT/Script/launch/linux/monpm.sh"
+
+run_monpm_module() {
+  local app_name="${1:?缺少应用名}"
+  local action="${2:?缺少操作名}"
+  shift 2
+
+  if [[ -x "$MON_ROOT/bin/monpm" && -f "$MON_ROOT/.run/monpm/monpm.dlc.json" ]]; then
+    case "$action" in
+      start)
+        local arg
+        for arg in "$@"; do
+          if [[ "$arg" == "--force" ]]; then
+            "$MON_ROOT/bin/monpm" restart "$app_name" -config "$MON_ROOT/.run/monpm/monpm.dlc.json"
+            echo "[PROCESS_NAME:$app_name]"
+            return
+          fi
+        done
+        "$MON_ROOT/bin/monpm" start "$app_name" -config "$MON_ROOT/.run/monpm/monpm.dlc.json"
+        ;;
+      stop|restart|status)
+        "$MON_ROOT/bin/monpm" "$action" "$app_name" -config "$MON_ROOT/.run/monpm/monpm.dlc.json"
+        ;;
+      logs)
+        local lines="${1:-80}"
+        if [[ "$lines" =~ ^[0-9]+$ ]]; then
+          "$MON_ROOT/bin/monpm" logs "$app_name" -tail "$lines" -follow -config "$MON_ROOT/.run/monpm/monpm.dlc.json"
+        else
+          "$MON_ROOT/bin/monpm" logs "$app_name" "$@" -config "$MON_ROOT/.run/monpm/monpm.dlc.json"
+        fi
+        ;;
+      *)
+        echo "[x] 不支持的 MonPM 操作: $action" >&2
+        return 2
+        ;;
+    esac
+    [[ "$action" == "logs" ]] || echo "[PROCESS_NAME:$app_name]"
+    return
+  fi
+
+  "$MONPM_MODULE" "$app_name" "$action" "$@"
+}
 
 # shellcheck source=log_paths.sh
 source "$SCRIPT_DIR/log_paths.sh"
@@ -53,12 +129,20 @@ resolve_project_path() {
 monpm_named_status() {
   local app_name="$1"
   export MONPM_STATUS_APP="$app_name"
-  "$MONPM_LAUNCHER" list -json | node -e '
+  local status
+  local -a list_command
+  if [[ -x "$MON_ROOT/bin/monpm" && -f "$MON_ROOT/.run/monpm/monpm.dlc.json" ]]; then
+    list_command=("$MON_ROOT/bin/monpm" list -json -config "$MON_ROOT/.run/monpm/monpm.dlc.json")
+  else
+    list_command=("$MONPM_LAUNCHER" list -json)
+  fi
+  status="$("${list_command[@]}" 2>/dev/null | node -e '
     const fs = require("fs");
     const apps = JSON.parse(fs.readFileSync(0, "utf8") || "[]");
     const app = apps.find((item) => item.name === process.env.MONPM_STATUS_APP);
     process.stdout.write(app ? (app.lifecycle_state || app.state || "unknown") : "missing");
-  '
+  ' 2>/dev/null)" || true
+  printf '%s\n' "${status:-unknown}"
 }
 
 find_first_executable() {

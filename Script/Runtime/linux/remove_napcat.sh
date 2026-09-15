@@ -82,7 +82,7 @@ remove_path() {
 }
 
 echo "[*] 停止 MonPM 应用: $NAPCAT_MONPM_NAME"
-"$MONPM_MODULE" "$NAPCAT_MONPM_NAME" stop || true
+run_monpm_module "$NAPCAT_MONPM_NAME" stop || true
 
 if docker_container_exists "$NAPCAT_DOCKER_CONTAINER"; then
   echo "[*] 删除 Docker 容器: $NAPCAT_DOCKER_CONTAINER"

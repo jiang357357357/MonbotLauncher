@@ -114,10 +114,10 @@ PY
 
 echo
 echo "[1/2] 重启 NapCat，使其回到扫码登录入口..."
-"$MONPM_MODULE" "$NAPCAT_MONPM_NAME" restart
+run_monpm_module "$NAPCAT_MONPM_NAME" restart
 
 echo
 echo "[2/2] MonPM 状态"
-"$MONPM_MODULE" "$NAPCAT_MONPM_NAME" status
+run_monpm_module "$NAPCAT_MONPM_NAME" status
 echo
 echo "[NAPCAT_LOGOUT:RESTARTED_FOR_LOGIN]"
