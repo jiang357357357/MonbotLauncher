@@ -2,7 +2,7 @@
 NAME=EDEN Bot
 NICKNAMES=EDEN
 [nonebot]
-DRIVER=~aiohttp
+DRIVER=~websockets
 HOST=127.0.0.1
 PORT=8080
 SUPERUSERS=

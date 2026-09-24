@@ -15,7 +15,7 @@ $env:PYTHONUTF8 = '1'
 & $py -m PyInstaller --noconfirm --distpath $OutputDirectory --workpath (Join-Path $root 'build\pyinstaller') "$PSScriptRoot\eden-bot.spec"
 if ($LASTEXITCODE -ne 0) { throw 'PyInstaller failed' }
 $bundle = Join-Path $OutputDirectory 'eden-bot'
-if (-not (Test-Path "$bundle\.monconfig")) { Copy-Item "$PSScriptRoot\bot.monconfig" "$bundle\.monconfig" }
+Copy-Item "$PSScriptRoot\bot.monconfig" "$bundle\.monconfig" -Force
 New-Item -ItemType Directory -Force "$bundle\Config" | Out-Null
 & "$bundle\eden-bot.exe" --self-test
 if ($LASTEXITCODE -ne 0) { throw 'Frozen application self-test failed' }

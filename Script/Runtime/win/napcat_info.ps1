@@ -12,6 +12,22 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path (Join-Path $ScriptDir "../../..")).Path
 $MonRoot = (Resolve-Path (Join-Path $ProjectRoot "..")).Path
 $MonPmLauncher = Join-Path $MonRoot "Script\launch\win\monpm.ps1"
+$MonPmExecutable = $null
+$MonPmConfig = $null
+$WorkspaceCandidate = Get-Item -LiteralPath $ProjectRoot
+while ($WorkspaceCandidate) {
+    $ExecutableCandidate = Join-Path $WorkspaceCandidate.FullName "bin\monpm.exe"
+    $ConfigCandidate = Join-Path $WorkspaceCandidate.FullName ".run\monpm\monpm.dlc.json"
+    if (
+        (Test-Path -LiteralPath $ExecutableCandidate -PathType Leaf) -and
+        (Test-Path -LiteralPath $ConfigCandidate -PathType Leaf)
+    ) {
+        $MonPmExecutable = $ExecutableCandidate
+        $MonPmConfig = $ConfigCandidate
+        break
+    }
+    $WorkspaceCandidate = $WorkspaceCandidate.Parent
+}
 $NapCatHome = if ($env:MON_NAPCAT_HOME) { $env:MON_NAPCAT_HOME } else { Join-Path $ProjectRoot "napcat" }
 $DefaultInstallBaseDir = if ($env:MON_NAPCAT_INSTALL_BASE_DIR) { $env:MON_NAPCAT_INSTALL_BASE_DIR } else { Join-Path $NapCatHome "Napcat" }
 $MonPmName = "napcat"
@@ -35,10 +51,15 @@ function Get-QrcodeDataUrl {
 
 function Get-MonPmStatus {
     try {
-        if (-not (Test-Path -LiteralPath $MonPmLauncher -PathType Leaf)) {
+        if ($MonPmExecutable -and $MonPmConfig) {
+            $RawOutput = & $MonPmExecutable list -json -config $MonPmConfig 2>$null
+        }
+        elseif (Test-Path -LiteralPath $MonPmLauncher -PathType Leaf) {
+            $RawOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $MonPmLauncher -Action list -Json 2>$null
+        }
+        else {
             return "unknown"
         }
-        $RawOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $MonPmLauncher -Action list -Json 2>$null
         $JsonText = $RawOutput -join "`n"
         $JsonStart = $JsonText.IndexOf("[")
         if ($JsonStart -lt 0) {

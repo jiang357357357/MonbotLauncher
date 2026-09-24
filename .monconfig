@@ -231,7 +231,7 @@ INSTALL_BASE_DIR=napcat/Napcat      # 官方 Shell 安装器在 HOME 下生成�
 EXECUTABLE=                         # 可选，手动指定 QQ/NapCat 启动入口
 APPIMAGE=                           # 可选，手动指定 NapCat AppImage
 DOCKER_CONTAINER=napcat
-QQ_ACCOUNT=3977489248               # 默认快速登录 QQ；留空时自动探测本机历史登录账号
+QQ_ACCOUNT=                         # 客户首次使用保持为空，通过 QQ 扫码登录
 EXTRA_ARGS=
 COMMAND=                            # custom 模式使用
 
