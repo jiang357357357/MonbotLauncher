@@ -54,6 +54,9 @@ case "$kind" in
     fi
 
     echo "AppImage: $NAPCAT_APPIMAGE"
+    # The official AppRun sets NAPCAT_WORKDIR to its current directory.
+    # Keep WebUI config, QR codes and logs beside the bundled AppImage.
+    cd "$NAPCAT_HOME"
     exec "$NAPCAT_APPIMAGE" "${args[@]}"
     ;;
   docker)

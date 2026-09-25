@@ -61,11 +61,16 @@ source "$PROCESS_DIR/napcat_common.sh"
 MONPM_STATUS="$(monpm_named_status "$NAPCAT_MONPM_NAME" 2>/dev/null || printf 'unknown')"
 
 LAUNCH_KIND="$(detect_napcat_launch_kind)"
-PLUGIN_ENTRY="$(napcat_shell_plugin_entry 2>/dev/null || true)"
-if [[ -n "$PLUGIN_ENTRY" ]]; then
-  NAPCAT_PLUGIN_DIR="$(cd "$(dirname "$PLUGIN_ENTRY")" && pwd)"
+if [[ "$LAUNCH_KIND" == "appimage" ]]; then
+  # AppImage's AppRun uses its launch directory as NAPCAT_WORKDIR.
+  NAPCAT_PLUGIN_DIR="$NAPCAT_HOME"
 else
-  NAPCAT_PLUGIN_DIR="$NAPCAT_INSTALL_BASE_DIR/opt/QQ/resources/app/app_launcher/napcat"
+  PLUGIN_ENTRY="$(napcat_shell_plugin_entry 2>/dev/null || true)"
+  if [[ -n "$PLUGIN_ENTRY" ]]; then
+    NAPCAT_PLUGIN_DIR="$(cd "$(dirname "$PLUGIN_ENTRY")" && pwd)"
+  else
+    NAPCAT_PLUGIN_DIR="$NAPCAT_INSTALL_BASE_DIR/opt/QQ/resources/app/app_launcher/napcat"
+  fi
 fi
 
 WEBUI_CONFIG="$NAPCAT_PLUGIN_DIR/config/webui.json"
