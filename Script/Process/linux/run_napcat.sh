@@ -48,6 +48,9 @@ case "$kind" in
     ;;
   appimage)
     args=()
+    if [[ -n "$NAPCAT_QQ_ACCOUNT" ]]; then
+      args+=(-q "$NAPCAT_QQ_ACCOUNT")
+    fi
     if [[ -n "$NAPCAT_EXTRA_ARGS" ]]; then
       read -r -a extra_args <<< "$NAPCAT_EXTRA_ARGS"
       args+=("${extra_args[@]}")
