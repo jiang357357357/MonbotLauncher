@@ -5,22 +5,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
-find_mon_workspace_root() {
-  local current="$PROJECT_ROOT"
-  while [[ "$current" != "/" ]]; do
-    if [[ -f "$current/.monworkspace" ]]; then
-      printf '%s\n' "$current"
-      return 0
-    fi
-    current="$(dirname "$current")"
-  done
-  return 1
-}
-
-# BotLauncher can be a direct workspace submodule or live below QQBot in the
-# portable DLC. Locate the actual Eden root instead of assuming one parent.
-DISCOVERED_MON_ROOT="$(find_mon_workspace_root || true)"
-MON_ROOT="${MON_WORKSPACE_ROOT:-${DISCOVERED_MON_ROOT:-$(cd "$PROJECT_ROOT/.." && pwd)}}"
+# Support DLC/BotLauncher source and the nested portable QQBot layout.
+source "$SCRIPT_DIR/workspace_root.sh"
+MON_ROOT="$(resolve_mon_workspace_root "$PROJECT_ROOT")"
 
 has_monpm_control_root() {
   local candidate="$1"

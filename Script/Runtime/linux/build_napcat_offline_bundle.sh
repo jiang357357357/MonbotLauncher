@@ -4,7 +4,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BOTLAUNCHER_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-MON_ROOT="$(cd "$BOTLAUNCHER_ROOT/.." && pwd)"
+source "$BOTLAUNCHER_ROOT/Script/Process/linux/workspace_root.sh"
+MON_ROOT="$(resolve_mon_workspace_root "$BOTLAUNCHER_ROOT")"
 
 PLATFORM="linux-x64"
 NAPCAT_VERSION="latest"
@@ -17,7 +18,7 @@ INSTALLER_URL="${MON_NAPCAT_INSTALLER_URL:-https://raw.githubusercontent.com/Nap
 usage() {
   cat <<'EOF'
 用法:
-  BotLauncher/Script/Runtime/linux/build_napcat_offline_bundle.sh [选项]
+  DLC/BotLauncher/Script/Runtime/linux/build_napcat_offline_bundle.sh [选项]
 
 选项:
   --version VERSION       NapCat 版本，默认 latest，例如 v4.18.7
@@ -117,14 +118,18 @@ usage() {
   ./install-offline.sh [--botlauncher PATH] [-- <NapCat 官方安装器参数>]
 
 示例:
-  ./install-offline.sh --botlauncher /home/manager/work/Mon/BotLauncher
-  ./install-offline.sh --botlauncher /home/manager/work/Mon/BotLauncher -- --docker n --cli n --proxy 0
+  ./install-offline.sh --botlauncher /home/manager/work/Mon/DLC/BotLauncher
+  ./install-offline.sh --botlauncher /home/manager/work/Mon/DLC/BotLauncher -- --docker n --cli n --proxy 0
 HELP
 }
 
 find_botlauncher_root() {
   local current="$BUNDLE_DIR"
   while [[ "$current" != "/" ]]; do
+    if [[ -f "$current/DLC/BotLauncher/.monconfig" ]]; then
+      printf '%s\n' "$current/DLC/BotLauncher"
+      return 0
+    fi
     if [[ -f "$current/BotLauncher/.monconfig" ]]; then
       printf '%s\n' "$current/BotLauncher"
       return 0
@@ -245,7 +250,7 @@ tar -xzf "\$ARCHIVE_PATH" -C "\$SCRIPT_DIR"
 echo
 echo "[NAPCAT_OFFLINE_BUNDLE:\$SCRIPT_DIR/\$BUNDLE_NAME]"
 echo "恢复完成。执行安装:"
-echo "  \$SCRIPT_DIR/\$BUNDLE_NAME/install-offline.sh --botlauncher /path/to/Mon/BotLauncher"
+echo "  \$SCRIPT_DIR/\$BUNDLE_NAME/install-offline.sh --botlauncher /path/to/Mon/DLC/BotLauncher"
 EOF
 
   chmod +x "$output"
@@ -346,12 +351,12 @@ cat > "$bundle_dir/README.md" <<EOF
 
 - NapCat: $NAPCAT_VERSION
 - Platform: $PLATFORM
-- Target: BotLauncher/napcat
+- Target: DLC/BotLauncher/napcat
 
 安装:
 
 \`\`\`bash
-./install-offline.sh --botlauncher /path/to/Mon/BotLauncher
+./install-offline.sh --botlauncher /path/to/Mon/DLC/BotLauncher
 \`\`\`
 EOF
 
@@ -397,8 +402,8 @@ const manifest = {
     { name: "restore-napcat-offline.sh" },
   ],
   install: {
-    target: "BotLauncher/napcat",
-    command: "./install-offline.sh --botlauncher /path/to/Mon/BotLauncher"
+    target: "DLC/BotLauncher/napcat",
+    command: "./install-offline.sh --botlauncher /path/to/Mon/DLC/BotLauncher"
   },
   sources: {
     installer: "$INSTALLER_URL",

@@ -8,7 +8,9 @@ powershell -ExecutionPolicy Bypass -File Script/Build/win/build.ps1
 
 产物为 `dist/eden-bot/`，必须复制整个目录，不能只复制 EXE。本地打包不推进版本、不提交 Git、不发布 Release。NapCat 和官方 QQ 不包含在产物中。
 
-运行前编辑产物根目录 `.monconfig`：OneBot 地址默认 `ws://127.0.0.1:3001`，MonCore 默认 `127.0.0.1:40011`。当前客户端 MonCore 登录使用 `ws://`，不宣称已经支持公网 HTTPS 网关。配置 `[permissions]` 中明确允许的私聊 QQ 或群号，后端联系人/群授权仍需同时满足。
+运行前编辑产物根目录 `.monconfig`：OneBot 地址默认 `ws://127.0.0.1:3001`，MonCore 默认 `127.0.0.1:40011`。当前客户端 MonCore 登录使用 `ws://`，不宣称已经支持公网 HTTPS 网关。聊天准入和管理员权限统一在 Web 的 QQBot 权限页面管理，由 Core 保存和判断；无需配置本地认可名单。
+
+旧 `Config/bot.json` 的 `*_default_permit`、`*_allow_list`、`*_deny_list` 以及 `.monconfig` 中的本地权限段不再决定业务权限。旧文件中的语音、消息处理等运行开关继续保留。新 BotCore 需要支持 `accessCheck` 的 Core；Core 不可用、超时或未授权时不处理消息，不使用本地超级管理员绕过。
 
 在产物 `Config/bot.env` 中自行配置凭据（不要提交 Git或分发）：
 

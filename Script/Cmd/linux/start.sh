@@ -4,7 +4,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-MON_ROOT="$(cd "$PROJECT_ROOT/.." && pwd)"
+source "$PROJECT_ROOT/Script/Process/linux/workspace_root.sh"
+MON_ROOT="$(resolve_mon_workspace_root "$PROJECT_ROOT")"
 MODULE_LAUNCHER="$MON_ROOT/Script/launch/linux/monpm-module.sh"
 
 args=("$@")

@@ -1,0 +1,19 @@
+{
+  "project": "BotLauncher",
+  "useCase": "logo-brand",
+  "generationMode": "built-in image_gen",
+  "prompt": "Use case: logo-brand. Create one extremely simple, polished Windows taskbar application icon for a software project named BotLauncher. Final design: a solid #D47B12 rounded-square tile, with one large solid white simplified friendly robot head: a broad rounded rectangular white head, two large circular cutout eyes revealing the orange background, one short centered antenna with a round tip. No mouth, no ears, no neck, no body centered on it. Geometric flat vector-like shapes, generous bold silhouette, high contrast. NO text, NO letters, NO tiny lines, NO decorative marks, NO gradients, NO shadows, NO 3D, NO border. Color palette: #D47B12 and white #FFFFFF only. The rounded square occupies about 90 percent of the square canvas, leaving transparent outer corners/margins. The white symbol occupies about 62 percent of the tile. Strong visual clarity at 16x16 and 32x32 pixels. Front-facing, balanced composition, crisp edges. Deliver only this single icon centered on a transparent square canvas.",
+  "repairPrompt": "Use case: precise-object-edit. Repair this simple flat application icon. Preserve exactly the existing white symbol, centered layout, rounded-square silhouette, and transparent margin outside the tile. Change only the colored tile surface: replace ALL mottling, holes, dark patches, gradients, grain, uneven transparency and edge specks with a completely uniform, flat, solid #D47B12 fill. The ENTIRE rounded square must be fully opaque (alpha 255) with absolutely no transparent holes inside it. White symbol fully opaque. Only pixels OUTSIDE the rounded square may be transparent; outside must be completely clean with no stray specks. Crisp smooth antialiased perimeter. No text, no additions, no lighting effects. Deliver a clean professional flat icon.",
+  "sourceImage": "C:\\Users\\Lenovo\\.codex\\generated_images\\01a108a7-88f5-7512-9295-734daa010c82\\exec-4d220b92-4919-4245-962a-74d8c6fbc798.png",
+  "png": "botlauncher-robot-v1.png",
+  "ico": "botlauncher-robot-v1.ico",
+  "icoSizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ]
+}

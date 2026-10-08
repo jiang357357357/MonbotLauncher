@@ -4,7 +4,8 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 
 $NapCatProcessScriptDir = $PSScriptRoot
 $NapCatProjectRoot = (Resolve-Path (Join-Path $NapCatProcessScriptDir "../../..")).Path
-$NapCatMonRoot = (Resolve-Path (Join-Path $NapCatProjectRoot "..")).Path
+. (Join-Path $NapCatProcessScriptDir 'portable_context.ps1')
+$NapCatMonRoot = Find-NapCatWorkspaceRoot -ProjectRoot $NapCatProjectRoot
 $NapCatHome = if ($env:MON_NAPCAT_HOME) { $env:MON_NAPCAT_HOME } else { Join-Path $NapCatProjectRoot "napcat" }
 $NapCatMonPmLauncher = Join-Path $NapCatMonRoot "Script\launch\win\monpm.ps1"
 $NapCatMonPmConfig = Join-Path $NapCatMonRoot ".run\monpm\monpm.json"
@@ -109,6 +110,14 @@ function Test-NapCatMonPmConfig {
 }
 
 function Initialize-NapCatMonPmConfig {
+    $script:NapCatPortableContext = Find-NapCatMonPmContext -ProjectRoot $NapCatProjectRoot
+    if ($script:NapCatPortableContext) {
+        $script:NapCatMonPmConfig = $script:NapCatPortableContext.Config
+        if (-not (Test-NapCatMonPmConfig)) {
+            throw 'QQBot DLC is not enabled. Open EDEN Web QQBot settings first.'
+        }
+        return
+    }
     if (-not (Test-Path -LiteralPath $NapCatMonPmLauncher -PathType Leaf)) {
         throw "MonPM launcher not found: $NapCatMonPmLauncher"
     }
@@ -122,13 +131,23 @@ function Initialize-NapCatMonPmConfig {
 function Invoke-NapCatMonPm {
     param([ValidateSet("start", "stop", "restart")][string]$Action)
     Initialize-NapCatMonPmConfig
+    if ($script:NapCatPortableContext) {
+        & $script:NapCatPortableContext.Executable $Action $NapCatMonPmName -config $NapCatMonPmConfig
+        if ($LASTEXITCODE -ne 0) { throw "MonPM $Action $NapCatMonPmName failed: $LASTEXITCODE" }
+        return
+    }
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $NapCatMonPmLauncher -Action $Action -Name $NapCatMonPmName
     if ($LASTEXITCODE -ne 0) { throw "MonPM $Action $NapCatMonPmName failed: $LASTEXITCODE" }
 }
 
 function Get-NapCatMonPmStatus {
     Initialize-NapCatMonPmConfig
-    $RawOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $NapCatMonPmLauncher -Action list -Json
+    if ($script:NapCatPortableContext) {
+        $RawOutput = & $script:NapCatPortableContext.Executable list -json -config $NapCatMonPmConfig
+    }
+    else {
+        $RawOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $NapCatMonPmLauncher -Action list -Json
+    }
     if ($LASTEXITCODE -ne 0) { throw "Failed to read MonPM status: $LASTEXITCODE" }
     $JsonText = $RawOutput -join "`n"
     $JsonStart = $JsonText.IndexOf("[")

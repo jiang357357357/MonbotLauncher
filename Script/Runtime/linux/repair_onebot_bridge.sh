@@ -87,7 +87,7 @@ fi
 
 WEBUI_CONFIG="$NAPCAT_PLUGIN_DIR/config/webui.json"
 BOTCORE_CONFIG="$PROJECT_ROOT/BotCore/.monconfig"
-BOT_ENV="$PROJECT_ROOT/../Config/ENV/bot.env"
+BOT_ENV="$(resolve_mon_workspace_root "$PROJECT_ROOT")/Config/ENV/bot.env"
 
 export PROJECT_ROOT
 export WEBUI_CONFIG

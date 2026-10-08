@@ -10,23 +10,15 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path (Join-Path $ScriptDir "../../..")).Path
-$MonRoot = (Resolve-Path (Join-Path $ProjectRoot "..")).Path
+. (Join-Path $ProjectRoot 'Script\Process\win\portable_context.ps1')
+$MonRoot = Find-NapCatWorkspaceRoot -ProjectRoot $ProjectRoot
 $MonPmLauncher = Join-Path $MonRoot "Script\launch\win\monpm.ps1"
 $MonPmExecutable = $null
 $MonPmConfig = $null
-$WorkspaceCandidate = Get-Item -LiteralPath $ProjectRoot
-while ($WorkspaceCandidate) {
-    $ExecutableCandidate = Join-Path $WorkspaceCandidate.FullName "bin\monpm.exe"
-    $ConfigCandidate = Join-Path $WorkspaceCandidate.FullName ".run\monpm\monpm.dlc.json"
-    if (
-        (Test-Path -LiteralPath $ExecutableCandidate -PathType Leaf) -and
-        (Test-Path -LiteralPath $ConfigCandidate -PathType Leaf)
-    ) {
-        $MonPmExecutable = $ExecutableCandidate
-        $MonPmConfig = $ConfigCandidate
-        break
-    }
-    $WorkspaceCandidate = $WorkspaceCandidate.Parent
+$PortableContext = Find-NapCatMonPmContext -ProjectRoot $ProjectRoot
+if ($PortableContext) {
+    $MonPmExecutable = $PortableContext.Executable
+    $MonPmConfig = $PortableContext.Config
 }
 $NapCatHome = if ($env:MON_NAPCAT_HOME) { $env:MON_NAPCAT_HOME } else { Join-Path $ProjectRoot "napcat" }
 $DefaultInstallBaseDir = if ($env:MON_NAPCAT_INSTALL_BASE_DIR) { $env:MON_NAPCAT_INSTALL_BASE_DIR } else { Join-Path $NapCatHome "Napcat" }

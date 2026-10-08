@@ -2,7 +2,8 @@ $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "../../..")
-$MonRoot = Resolve-Path (Join-Path $ProjectRoot "..")
+. (Join-Path $ProjectRoot 'Script\Process\win\portable_context.ps1')
+$MonRoot = Find-NapCatWorkspaceRoot -ProjectRoot $ProjectRoot
 $MonPmLauncher = Join-Path $MonRoot "Script/launch/win/monpm.ps1"
 $StopScript = Join-Path $ProjectRoot "Script/Process/win/stop_napcat_process.ps1"
 $NapCatHome = if ($env:MON_NAPCAT_HOME) { $env:MON_NAPCAT_HOME } else { Join-Path $ProjectRoot "napcat" }

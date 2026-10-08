@@ -2,6 +2,18 @@
 
 基于 NoneBot2 的 QQ 机器人，通过 NapCat 协议与 QQ 通信，通过 WebSocket 与 MonCore 后端交互。
 
+## 源码工作区位置
+
+Mon 工作区中的源码位于 `DLC/BotLauncher/`，机器人核心仍是其内部子模块 `BotCore/`。以下开发命令从 `DLC/BotLauncher` 目录执行。启动、进程管理和离线维护脚本向上寻找 `.monworkspace` 定位 Mon 根目录，不依赖固定目录层数；独立仓库及现有 QQBot 便携布局继续兼容。
+
+工作区凭据仍位于根目录 `Config/ENV/bot.env`，设备绑定状态仍位于根目录 `.run/qqbot`；模块内 `BotCore/Config`、`BotCore/data`、`Logs` 和可选 NapCat 运行目录随模块保留。这里的 `DLC/` 是源码分类，源码目录本身不是客户可安装的 DLC 包。
+
+## Windows 客户 DLC
+
+QQBot 是独立交付的付费 DLC。客户将主包与 DLC 分别解压为同级的 `EDEN-portable/EDEN_win` 和 `EDEN-portable/QQBot`，从主包 `启动EDEN.vbs` 打开配置管理和 Web，在“机器人设置 → 接入 → QQBot”扫码登录并一键绑定。
+
+当前 Windows DLC 内含编译后的 BotCore 与获商用授权的 NapCat，客户无需安装 Python、Node.js 或 NapCat，只需安装官方 Windows QQ。未购买客户只交付主包。后续客户交付不再使用 GitCode Release、私有运行时仓库或稳定清单；安装与升级说明见 [QQBot DLC 安装与使用](../../文档/发布/QQBot%20DLC安装与使用.md)。以下依赖和启动命令适用于源码开发环境。
+
 ## 特性
 
 - 🤖 基于 NoneBot2 框架，稳定可靠
@@ -13,7 +25,7 @@
 - 🔄 自动重连和错误恢复
 - 🎨 丰富的日志和渲染系统
 
-## 系统要求
+## 源码开发要求
 
 - Python 3.12.6+
 - NapCat（QQ 协议实现）
@@ -41,13 +53,10 @@ pip install nonebot2[fastapi] nonebot-adapter-onebot websockets aiohttp aiofiles
 
 ### 2. 配置机器人
 
-编辑 `MonQQBotCore/MonBot/src/plugins/BotCore/config/config.json`：
+本地运行配置为 `BotCore/Config/bot.json`；源码首次启动会从 `BotCore/src/plugins/BotCore/config/config.json` 建立配置。非敏感连接设置放在模块 `.monconfig`，凭据由 Web 写入工作区 `Config/ENV/bot.env`。机器人身份由 NapCat 和 Core 提供，不用本地字段冒充账号绑定：
 
 ```json
 {
-  "bot_name": "你的机器人名字",
-  "bot_nicknames": ["昵称1", "昵称2"],
-  "command_prefix": "/",
   "enable_mention_reply": true,
   "enable_name_mention": true
 }
@@ -57,13 +66,10 @@ pip install nonebot2[fastapi] nonebot-adapter-onebot websockets aiohttp aiofiles
 
 ```bash
 # 方式1：直接运行
-python MonQQBotCore/MonBot/bot.py
+python BotCore/bot.py
 
 # 方式2：使用 uv
-uv run python MonQQBotCore/MonBot/bot.py
-
-# 方式3：使用启动器（如果有 GUI 界面）
-python main_launcher.py
+uv run python BotCore/bot.py
 ```
 
 ### Linux MonPM 启动
@@ -88,16 +94,16 @@ Script/Process/linux/logs_process.sh
 
 ### NapCat 外置运行时
 
-NapCatQQ 当前许可证包含非商业使用限制；`Mon` 主仓库、`BotLauncher` 源码仓库、`ConfigAppReact`/`Web` 客户端分发仓库都不要提交 NapCat 源码、二进制或解压后的运行时目录。需要面向客户提供 NapCat 离线安装能力时，使用 GitCode 私有仓库 `zz357357357/MonNapCatRuntime`，只存放 NapCat/QQ 离线运行时包、manifest、checksums 和恢复/安装脚本。
+NapCat 的源码、二进制和解压后的运行时目录不进入 Mon 或子模块源码历史。项目持有人已确认取得作者商用授权，当前 Windows 客户所需的 NapCat 随独立 QQBot DLC 交付，包内保留官方来源、上游版本、完整许可证、校验值和授权说明，不分发腾讯 QQ。
 
-默认本机部署目录是 `BotLauncher/napcat`，该目录已被 Git 忽略。Linux 安装脚本默认从 GitCode 私有运行时仓库下载离线包、恢复归档并安装到本机；NapCat 本体仍不进入 Mon 主仓库或现有子模块仓库。
+默认源码部署目录是 `DLC/BotLauncher/napcat`，该目录已被 Git 忽略。旧 Linux 安装器仍包含从 GitCode 私有运行时仓库恢复离线包的代码，仅作为历史维护工具；目录迁移没有改变该安装器的下载来源，不能把它作为后续客户 DLC 的下载入口。
 
 参考：
 
 - NapCatQQ 许可证：https://github.com/NapNeko/NapCatQQ/blob/main/LICENSE
 - NapCat 官方安装器：https://github.com/NapNeko/NapCat-Installer
 
-GitCode 私有运行时仓库结构：
+历史 GitCode 私有运行时仓库结构（不再用于后续客户交付）：
 
 ```text
 MonNapCatRuntime
@@ -111,18 +117,18 @@ MonNapCatRuntime
             └── restore-napcat-offline.sh
 ```
 
-`Mon` 分发清单只记录私有仓库中的 NapCat 版本、平台、manifest 地址和校验信息，不把 NapCat 本体写入 `Mon` 根仓库或现有子模块仓库。
+历史分发清单曾指向上述私有仓库。当前 DLC 的 `BUILD-INFO.json` 与 `dlc-manifest.json` 直接记录所含 NapCat 的上游版本、来源和校验信息。
 
-Linux：
+Linux 源码与历史维护命令（含旧下载入口）：
 
 ```bash
 # 检查本机是否已有 NapCat
 Script/Runtime/linux/check_napcat.sh
 
-# 默认从 GitCode 私有运行时仓库恢复离线包，并安装到 BotLauncher/napcat
+# 旧安装器：从 GitCode 私有运行时仓库恢复，不用于后续客户交付
 Script/Runtime/linux/install_napcat.sh
 
-# 只拉取并恢复 GitCode 离线包，不执行安装
+# 旧安装器：只拉取并恢复历史 GitCode 离线包，不执行安装
 Script/Runtime/linux/install_napcat.sh --download-only
 
 # 指定运行时版本，并透传 NapCat 官方安装器参数
@@ -143,10 +149,10 @@ Script/Runtime/linux/napcat_info.sh --no-image
 # 在线机器构建 NapCat Linux 离线包，输出到 Mon/.release/napcat-offline
 Script/Runtime/linux/build_napcat_offline_bundle.sh --version latest --platform linux-x64
 
-# GitCode 私有运行时仓库由发布维护端同步，不写入 Mon 源码仓库
+# 本地产物可用于独立 DLC 组装；后续不向 GitCode 发布运行时
 ```
 
-Windows：
+Windows 源码开发时的官方运行时安装命令（便携 DLC 客户无需执行）：
 
 ```powershell
 # 检查本机是否已有 NapCat
@@ -155,13 +161,13 @@ powershell -ExecutionPolicy Bypass -File Script/Runtime/win/check_napcat.ps1
 # 只下载并校验官方 NapCat.Shell.zip，不执行安装
 powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1
 
-# 显式确认许可证后安装到 BotLauncher/napcat/Napcat，并复用系统 QQ
+# 显式确认许可证后安装到 DLC/BotLauncher/napcat/Napcat，并复用系统 QQ
 powershell -ExecutionPolicy Bypass -File Script/Runtime/win/install_napcat.ps1 -RunInstaller -AcceptNapCatLicense
 ```
 
-当前 GitCode 运行时仓库只发布了 `linux-x64` 离线包。Windows 脚本从 NapCat 官方 GitHub Release 获取 `NapCat.Shell.zip`，验证 Release 提供的 SHA-256 后安装；本机必须已安装官方 QQ。
+Windows 源码安装脚本从 NapCat 官方 GitHub Release 获取 `NapCat.Shell.zip`，验证 Release 提供的 SHA-256 后安装；本机必须已安装官方 QQ。维护端制作 Windows DLC 时执行同样的上游完整性校验，并把完整运行时放入 DLC。
 
-如已获得 NapCatQQ 主作者对商业分发的明确授权，再单独维护 GitCode 私有运行时仓库中的离线包；默认流程保持外置运行时，不把 NapCat 本体推送到 `Mon` 主仓库或客户端 Release。
+商用授权适用于独立 DLC 交付，不改变上游许可证，也不将 NapCat 写入源码仓库或恢复 GitCode 客户发布。重新交付使用干净原始归档，不能把已登录后的账号状态、Token 或配置文件打包给其他客户。
 
 `napcat_info` 脚本会输出 JSON，字段包含：
 
@@ -196,6 +202,44 @@ NapCat MonPM 前台运行器读取 `.monconfig` 的 `[napcat_process]`：
 
 ## 核心功能
 
+### NapCat 扩展能力
+
+已加入受限 QQ 操作目录、持久事件收件箱和智能体工具，覆盖语音转写、消息转发/历史、表情包管理、好友与入群申请、群高级管理/群文件、资料修改、受限名片/小程序卡片、空间发布/删除、群相册/待办及在线文件/文件夹/闪传。群聊智能体、事件自动响应和角色资料同步由所有者或个人超级管理员按目标显式开启。
+
+超级管理员私聊使用 `/QQ能力`、`/QQ能力 操作名`、`/QQ事件 request`、`/QQ操作 操作名 JSON参数`、`/QQ自动化`。私聊智能体操作沿用已有审批机制。需要同步更新 BotCore、MonCore 和 AgentServer，并应用新增数据库迁移；接口按 NapCat v4.18.28 核对，旧运行时可能不支持部分操作。
+
+具体参数、规则示例、文件限制和已知边界见 [BotCore 接入说明](BotCore/README.md#napcat-扩展能力)。事件断线补发并按持久化回执去重；修改操作结果不明时不会自动重试。流式传输和上游尚无实际结果的频道/在线客户端接口明确标记不可用。
+
+### QQ 空间动态（说说）
+
+BotCore 与 MonCore 均更新后，可通过管理员私聊命令或后端接口发布说说。
+要求 **NapCat v4.18.14 或更新版本**；文档中的旧 `v4.18.7` 离线运行时不支持此功能。
+使用 NapCat 官方 [`send_qzone_msg`](https://github.com/NapNeko/NapCatQQ/blob/v4.18.14/packages/napcat-onebot/action/extends/SendQzoneMsg.ts)，无需额外配置 QQ 空间 Cookie。
+
+```text
+/说说 今天的开发进展已完成。
+/说说 --公开 今天的开发进展已完成。
+/说说 --仅自己 这是一条个人记录。
+```
+
+- 默认好友可见，也可显式使用 `--好友`；别名为 `/发动态`、`/发说说`。
+- 仅在私聊中接受命令。发布权限由 MonCore 中当前 Bot 的个人超级管理员规则决定，显式拉黑优先。
+- 命令目前只接受文字。后端接口另外支持 HTTP(S) 图片 URL；本项目限制正文 1 至 2000 字、图片最多 9 张。
+- 必须收到说说 ID 才显示发布成功。超时、连接异常或回执不完整会提示结果未确认，请先查看 QQ 空间，勿立即重复发布。
+- 发布不自动重试；当前 BotCore API 实例会缓存最近 256 个请求的结果，避免同一请求重复执行。这不保证跨重启去重。
+
+后端接口：`POST /api/devices/qq_bot/<数据库ID>/qzone/publish/`。使用 MonCore 现有登录认证，仅机器人所有者或全局管理员可调用；路径中的 ID 不是 QQ 号码。
+
+```json
+{
+  "content": "今天的开发进展已完成。",
+  "images": ["https://example.com/photo.jpg"],
+  "ugc_right": 4
+}
+```
+
+`ugc_right` 支持 `1`（公开）、`4`（好友，默认）、`64`（仅自己）。`images` 可省略，不接受本地文件路径或内嵌图片数据。接口返回 `published`、`failed` 或 `unknown`；HTTP 202 表示结果未确认，不表示发布成功。多进程部署时，该请求须路由到持有 BotCore WebSocket 的进程；本接口不会广播到多个连接执行发布。
+
 ### 消息处理
 
 - **命令处理**：支持 `/帮助`、`/角色`、`/语音`、`/好感`、`/好感排行` 等命令
@@ -207,8 +251,8 @@ NapCat MonPM 前台运行器读取 `.monconfig` 的 `[napcat_process]`：
 
 - **TTS 支持**：将文本回复转换为语音
 - **自动降级**：语音生成失败时自动回退到文本
-- **语音开关**：可通过 `/语音 开启/关闭` 命令控制，修改类命令仅 superuser 可用
-- **好感查询**：可通过 `/好感` 查看自己的四维好感值，通过 `/好感排行` 查看好感总值排行
+- **语音开关**：可通过 `/语音 开启/关闭` 命令控制，管理员和超级管理员可在群聊或私聊中修改，权限取自 Core
+- **历史命令**：`/好感`、`/好感排行` 保留停用提示，QQBot 不再维护好感度
 
 ### 后端通信
 
@@ -216,6 +260,14 @@ NapCat MonPM 前台运行器读取 `.monconfig` 的 `[napcat_process]`：
 - **WebSocket 连接**：建立专用通信通道
 - **实时同步**：接收后端推送的白名单和关键词更新
 - **自动重连**：连接断开时自动重连
+
+## 统一命令机制
+
+Core 与 BotCore 必须同步更新。所有 QQ 命令由 Core 的 `command_registry.py` 定义，经同一个 `qqCommand` 协议 1 完成鉴权、参数校验和执行；BotCore 只提取消息前缀及参数，发送结果，并落实 Core 授权的语音开关。命令支持 `/`、`!`、`！`，群聊可先 @机器人；用 `/帮助` 查看当前 Core 的完整命令目录。
+
+权限以 Web 中当前 Bot 的 QQ 授权为准。个人超级管理员包含管理员能力，修改 `/语音 开启`、`/语音 关闭` 可在群聊或私聊执行；群管理员规则不会把群成员提升为机器人管理员，显式个人或群拉黑优先。状态、模式、权限、审批、说说和 QQ 管理命令仅供个人超级管理员在私聊使用。
+
+未知命令、参数错误和权限拒绝都直接返回命令结果，不再进入 AI 聊天。未连接时提示未执行；发送中断或回执超时提示结果未确认，不自动重试。旧独立命令通道停止执行，版本不匹配时提示同步更新。
 
 ## 配置说明
 
@@ -228,7 +280,6 @@ NapCat MonPM 前台运行器读取 `.monconfig` 的 `[napcat_process]`：
   "bot_name": "机器人名字",
   "bot_nicknames": ["昵称列表"],
   "bot_description": "机器人描述",
-  "command_prefix": "/",
   "enable_mention_reply": true,
   "enable_name_mention": true,
   "default_reply": "默认回复",
@@ -264,8 +315,9 @@ LOG_LEVEL=INFO                    # 日志级别
 
 ### 添加新命令
 
-1. 在 `core/router/commands.py` 中注册命令
-2. 在 `core/business/command/command_service.py` 中实现业务逻辑
+1. 在 `Core/Application/Domain/BOT/Core/command_registry.py` 登记命令名称、别名、用法、权限和会话范围。
+2. 在同目录 `command_service.py` 实现参数处理和执行，返回统一结果；帮助自动引用目录。
+3. 添加 Core 权限和执行测试；BotCore 使用现有 `qqCommand` 通道，不再注册独立 matcher 或本地命令名单。
 
 ### 添加新的消息处理
 
@@ -359,15 +411,11 @@ grep ERROR logs/monbot.log
 
 ## 贡献
 
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
+遵循根工作区 [AGENTS.md](../../AGENTS.md)：在默认 `master` 分支完成修改和必要验证，通过根统一推送脚本提交、推送 GitHub，并更新父仓库 submodule 指针。普通推送不自动构建或交付 DLC。
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+本项目沿用 README 中的 MIT 许可声明；当前源码目录未附独立 `LICENSE` 文件。NapCat 和其他第三方组件的许可证及商用授权分别记录在交付包的 `THIRD-PARTY-NOTICES.md` 和 `licenses/`。
 
 ## 相关链接
 
