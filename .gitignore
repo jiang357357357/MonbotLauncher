@@ -18,7 +18,7 @@ wheels/
 napcat/
 NapCat/
 .runtime/
-runtime/
+/runtime/
 External/NapCat/
 data/napcat/
 data/temp/

@@ -7,6 +7,7 @@
 
 ## [1.11.5] - 2026-10-08
 
+- 将运行时目录忽略规则限制在仓库根目录，确保 `Script/Runtime/win/napcat_logout.ps1` 随确定提交进入完整 DLC 构建。
 - 源码迁至 DLC/BotLauncher，统一源码和便携 MonPM 上下文、QQBot 冻结运行时及 NapCat 管理；保留用户绑定与授权运行时。
 
 ### Fixed
